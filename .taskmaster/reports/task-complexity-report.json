@@ -1,0 +1,93 @@
+{
+	"meta": {
+		"generatedAt": "2026-03-20T15:31:23.728Z",
+		"tasksAnalyzed": 10,
+		"totalTasks": 10,
+		"analysisCount": 10,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Initialize Monorepo Infrastructure and Database Schema",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the monorepo setup into distinct phases: workspace initialization, tooling configuration, type system setup, database schema creation, and data seeding. Each phase should be independently testable and deployable.",
+			"reasoning": "High complexity due to multiple interconnected systems (Turborepo, TypeScript, Drizzle ORM, Postgres), extensive tooling configuration, and foundational nature affecting all subsequent development. Requires expertise in monorepo architecture, database design, and build system optimization."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Build Authentication System and User Management",
+			"complexityScore": 9,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Separate authentication concerns into: core JWT service setup, OAuth provider integration, API endpoint creation, session management implementation, and cross-platform UI development. Focus on security best practices and platform-specific token storage.",
+			"reasoning": "Very high complexity involving security-critical components, multiple OAuth providers, cross-platform implementation, secure token storage, and session management. Requires deep understanding of authentication protocols, security best practices, and platform-specific implementations."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Implement Forecast Data Integration and Normalization Engine",
+			"complexityScore": 9,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Structure around data pipeline stages: external API client development, data normalization engine, surf quality algorithm, API endpoint creation, and background job system. Each stage should handle errors gracefully and support monitoring.",
+			"reasoning": "Very high complexity due to integration with multiple external APIs, complex data normalization logic, algorithmic surf rating system, background job processing, and caching strategies. Requires expertise in API integration, data processing, and distributed systems."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Build Forecast Display UI and Spot Management",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Organize by component layers: shared UI component library, core spot management logic, backend API development, mobile app integration, and web app integration with GPS and offline features.",
+			"reasoning": "High complexity involving cross-platform UI development, GPS integration, offline functionality, search algorithms, and responsive design. Requires expertise in React/React Native, geolocation services, and offline-first architecture."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Implement Webcam Integration and Live Stream Viewer",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break into research and infrastructure phases: webcam source research, backend metadata service, live streaming components, time-lapse functionality, and cross-platform integration with bandwidth optimization.",
+			"reasoning": "High complexity due to video streaming technology, multiple stream formats, time-lapse generation, bandwidth optimization, and cross-platform media handling. Requires expertise in video streaming protocols, media processing, and performance optimization."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Build Physical Therapy Exercise Library and Routine Engine",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Structure around content and intelligence layers: exercise content curation, content management system, backend API development, recommendation algorithm, and user interface with progress tracking.",
+			"reasoning": "High complexity involving content creation/management, recommendation algorithms, video content handling, progress tracking, and domain expertise in surf-specific physical therapy. Requires collaboration with PT professionals and sophisticated recommendation logic."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Develop Coach Marketplace with Profiles and Search",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Organize by marketplace components: coach registration and profiles, admin verification system, search and discovery API, profile management dashboard, and cross-platform UI integration.",
+			"reasoning": "Moderate-high complexity involving two-sided marketplace dynamics, admin workflows, search functionality, profile management, and verification systems. Standard marketplace patterns but requires careful UX design and admin tooling."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Implement Booking System with Stripe Connect Integration",
+			"complexityScore": 9,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Structure around payment and communication systems: Stripe Connect setup, booking system API, real-time messaging, booking flow UI, and integrated booking management with proper error handling and edge cases.",
+			"reasoning": "Very high complexity due to financial transactions, Stripe Connect marketplace setup, real-time messaging, timezone handling, concurrent booking prevention, and payment processing. Requires expertise in payment systems, real-time communication, and financial compliance."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Build Session Logging and Recovery Integration",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Organize by data flow: session logging API and database, session-to-recovery trigger system, personal stats backend, mobile/web UI development, and PT system integration with analytics dashboard.",
+			"reasoning": "Moderate-high complexity involving GPS integration, background job processing, data visualization, cross-system integration with PT module, and personal analytics. Requires expertise in location services, data aggregation, and visualization libraries."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Implement Reviews, Notifications, and Launch Preparation",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Structure around launch readiness: review system development, push notification infrastructure, offline support implementation, analytics integration, and comprehensive launch preparation with App Store submission.",
+			"reasoning": "High complexity due to multiple disparate systems (reviews, notifications, offline support, analytics), App Store submission requirements, cross-platform push notifications, and launch coordination. Requires expertise in mobile app distribution, analytics, and production deployment."
+		}
+	]
+}

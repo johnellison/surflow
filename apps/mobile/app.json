@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Surflow",
+    "slug": "surflow",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "scheme": "surflow",
+    "platforms": ["ios"],
+    "ios": {
+      "bundleIdentifier": "com.surflow.app",
+      "supportsTablet": true
+    },
+    "plugins": ["expo-router"]
+  }
+}

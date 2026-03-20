@@ -1,0 +1,25 @@
+{
+  "name": "@surflow/web",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@surflow/core": "workspace:*",
+    "@surflow/ui": "workspace:*",
+    "@surflow/api-client": "workspace:*",
+    "next": "^15",
+    "react": "^19",
+    "react-dom": "^19"
+  },
+  "devDependencies": {
+    "typescript": "^5.7",
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
+  }
+}

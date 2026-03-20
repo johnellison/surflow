@@ -1,0 +1,31 @@
+{
+  "name": "@surflow/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src/",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/db/seed.ts",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@surflow/core": "workspace:*",
+    "hono": "^4",
+    "drizzle-orm": "^0.39",
+    "postgres": "^3.4",
+    "dotenv": "^16"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typescript": "^5.7",
+    "tsx": "^4",
+    "vitest": "^3",
+    "drizzle-kit": "^0.30"
+  }
+}

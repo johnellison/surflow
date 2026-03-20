@@ -1,0 +1,27 @@
+{
+  "name": "surflow",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean",
+    "db:migrate": "turbo run db:migrate --filter=@surflow/api",
+    "db:seed": "turbo run db:seed --filter=@surflow/api",
+    "db:generate": "turbo run db:generate --filter=@surflow/api"
+  },
+  "devDependencies": {
+    "turbo": "^2"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  }
+}

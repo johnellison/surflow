@@ -1,0 +1,883 @@
+<rpg-method>
+# Surflow — Product Requirements Document (RPG Method)
+
+Cross-platform surf lifestyle app combining real-time forecasts, webcams, guided physical therapy, and a local coach marketplace. Built for intermediate-to-advanced surfers in Morocco and Bali.
+</rpg-method>
+
+---
+
+<overview>
+
+## Problem Statement
+
+Intermediate and advanced surfers juggle multiple apps and fragmented information to plan sessions, check conditions, recover from surf-related injuries, and find coaching. A surfer in Taghazout checks MSW for forecasts, opens a separate webcam app, searches YouTube for shoulder rehab exercises, and messages coaches on Instagram. There's no unified experience that ties the surf session lifecycle together: forecast → session → recovery → improvement.
+
+Existing solutions fall short:
+- **Surfline / Magic Seaweed**: Great forecasts, but no recovery or coaching. Webcams are paywalled or geo-limited.
+- **PT apps (e.g., PLIABILITY)**: Generic. Not surf-specific. Don't connect to session context.
+- **Coach discovery**: Entirely word-of-mouth or Instagram DMs. No booking, reviews, or quality signal.
+
+Surflow closes this loop for committed surfers who treat surfing as a practice — not just a weekend hobby.
+
+## Target Users
+
+### Primary Persona: "The Committed Surfer"
+- **Age**: 25–45
+- **Level**: Intermediate to advanced (3+ years surfing)
+- **Behavior**: Surfs 3–6x/week when conditions allow. Travels for surf (Morocco, Bali, Portugal, etc.)
+- **Pain points**: Shoulder/hip/lower back issues from repetitive paddling. Wants structured improvement but can't find reliable coaches in transient surf destinations. Checks 3+ apps before every session.
+- **Goals**: Surf more, recover faster, improve technique, find trusted local knowledge.
+
+### Secondary Persona: "The Surf Coach"
+- **Age**: 28–50
+- **Level**: Advanced/professional, often certified (ISA, local federation)
+- **Behavior**: Teaches 5–15 sessions/week. Currently finds students via hostel partnerships, Instagram, word-of-mouth.
+- **Pain points**: Inconsistent bookings, no online presence beyond social media, no way to build a verified reputation.
+- **Goals**: Fill schedule, build reviews, reach traveling surfers before they arrive.
+
+## Success Metrics
+- **Activation**: 60% of new users check a forecast + one other feature (webcam, PT, or coach) within first 3 days
+- **Retention**: 40% weekly active users at day 30
+- **Coach marketplace**: 20 coaches onboarded in Morocco + Bali within 3 months of launch
+- **Session-to-recovery**: 25% of users who log a surf session start a PT routine within 24 hours
+- **NPS**: >50 among weekly active users by month 6
+
+</overview>
+
+---
+
+<functional-decomposition>
+
+## Capability Tree
+
+### Capability: Surf Forecast Engine
+Aggregates and normalizes swell, wind, tide, and weather data from multiple sources to present actionable surf conditions for specific spots.
+
+#### Feature: Multi-Source Data Aggregation
+- **Description**: Ingest forecast data from NOAA/NDBC buoys, Copernicus Marine Service, Open-Meteo, and Surfline (where API-accessible) into a normalized schema.
+- **Inputs**: GPS coordinates of surf spots, time range (now + 7 days)
+- **Outputs**: Normalized forecast object: swell height/period/direction, wind speed/direction, tide times/heights, water temp, air temp
+- **Behavior**: Poll sources on schedule (hourly for swell, 3-hourly for wind). Merge and de-duplicate. Flag stale data. Prefer buoy data when available, fall back to model data.
+
+#### Feature: Spot-Specific Forecast Display
+- **Description**: Render forecast for a specific surf spot with a surf-quality rating (1–5 stars) and plain-language summary.
+- **Inputs**: Normalized forecast data, spot metadata (orientation, reef/beach, ideal conditions)
+- **Outputs**: Visual forecast card with star rating, swell/wind/tide summary, best-time-to-surf window
+- **Behavior**: Apply spot-specific heuristics (e.g., "Anchor Point works best on NW swell 6-10ft, light E wind"). Generate natural-language summary ("Clean head-high sets, light offshores. Best around mid-tide at 10am.").
+
+#### Feature: Spot Directory & Favorites
+- **Description**: Searchable directory of surf spots in Morocco and Bali with metadata. Users can favorite spots for quick access.
+- **Inputs**: User location or search query
+- **Outputs**: List of spots with current conditions overview, distance, favorites toggle
+- **Behavior**: Pre-loaded spot database (curated, not user-generated at launch). GPS-based sorting. Offline-capable spot metadata.
+
+#### Feature: Multi-Day Forecast & Alerts
+- **Description**: 7-day forecast view with push notification alerts when conditions match user preferences.
+- **Inputs**: User alert preferences (min swell, max wind, preferred spots)
+- **Outputs**: Push notifications, 7-day chart view
+- **Behavior**: Evaluate alert rules against incoming forecast data. Deduplicate alerts (max 2/day per spot). Respect quiet hours.
+
+---
+
+### Capability: Webcam Viewer
+Live and recent-replay webcam feeds for surf spots, enabling visual condition checks.
+
+#### Feature: Live Webcam Streams
+- **Description**: Display live webcam feeds from surf spots. Aggregate from public webcam providers and partner installations.
+- **Inputs**: Spot ID
+- **Outputs**: HLS/DASH video stream, still-image fallback
+- **Behavior**: Detect stream availability. Show "offline" badge when unavailable. Prefer HD streams on Wi-Fi, downscale on cellular. Display timestamp overlay.
+
+#### Feature: Rewind / Time-Lapse
+- **Description**: View recent webcam footage (last 4 hours) as a time-lapse or scrubable replay.
+- **Inputs**: Spot ID, time range
+- **Outputs**: Time-lapse video, scrubber UI
+- **Behavior**: Store snapshots every 5 minutes server-side. Assemble into playable time-lapse on demand. Cache aggressively.
+
+#### Feature: Webcam + Forecast Overlay
+- **Description**: Overlay current swell/wind/tide data on the webcam view for at-a-glance context.
+- **Inputs**: Live webcam feed, current forecast data for the same spot
+- **Outputs**: Composited view with data overlay
+- **Behavior**: Semi-transparent overlay on bottom third of video. Tap to toggle. Shows star rating, swell, wind, tide.
+
+---
+
+### Capability: Physical Therapy & Recovery
+Guided, surf-specific exercise routines for injury prevention and post-session recovery.
+
+#### Feature: Exercise Library
+- **Description**: Curated library of surf-specific PT exercises with video demonstrations, targeting shoulders, hips, lower back, ankles, and neck.
+- **Inputs**: Body area filter, difficulty level
+- **Outputs**: Exercise cards with video, description, duration, sets/reps, difficulty
+- **Behavior**: Exercises tagged by body area, surf-relevance (paddling, pop-up, bottom turn), and difficulty. Video plays inline. Offline download available.
+
+#### Feature: Guided Routines
+- **Description**: Pre-built and algorithmically suggested routines (warm-up, cool-down, recovery day, injury-specific).
+- **Inputs**: Routine type, user injury history (optional), session duration
+- **Outputs**: Ordered exercise sequence with rest timers, progress indicator
+- **Behavior**: Timer-based flow. Audio cues for transitions. Track completion. Suggest recovery routine after a surf session is logged.
+
+#### Feature: Session-to-Recovery Link
+- **Description**: After a user logs a surf session (or one is detected), prompt them with a relevant recovery routine.
+- **Inputs**: Session log (duration, intensity, spot)
+- **Outputs**: Push notification or in-app prompt with recommended routine
+- **Behavior**: Trigger 1–4 hours post-session. Intensity-based recommendation (longer session → longer routine). Dismissable.
+
+#### Feature: Progress Tracking
+- **Description**: Track PT routine completion over time. Show streaks, consistency, and body-area coverage.
+- **Inputs**: Completed routine logs
+- **Outputs**: Calendar heatmap, streak counter, body-area balance chart
+- **Behavior**: Local-first tracking. Sync to cloud for cross-device. Weekly summary notification.
+
+---
+
+### Capability: Coach Marketplace
+Two-sided marketplace connecting traveling surfers with local coaches for lessons, video analysis, and guided sessions.
+
+#### Feature: Coach Profiles
+- **Description**: Public coach profiles with bio, certifications, specialties, photos/videos, pricing, and verified reviews.
+- **Inputs**: Coach-submitted profile data, verification documents
+- **Outputs**: Public profile page, search result card
+- **Behavior**: Coaches self-manage profiles. Admin review for initial activation. Certification badges (ISA, etc.) verified manually at launch.
+
+#### Feature: Search & Discovery
+- **Description**: Search coaches by location, specialty (beginner lessons, advanced coaching, video analysis), availability, rating, and price.
+- **Inputs**: User location or destination, filters
+- **Outputs**: Ranked list of coaches with availability preview
+- **Behavior**: Default sort by proximity + rating. Show "available this week" badge. Filter by language spoken.
+
+#### Feature: Booking & Scheduling
+- **Description**: Book a session with a coach. Coaches set availability windows and session types (1-on-1, group, video analysis).
+- **Inputs**: Coach ID, session type, preferred date/time
+- **Outputs**: Booking confirmation, calendar entry for both parties
+- **Behavior**: Real-time availability check. Instant booking (no request/accept flow at launch). 24-hour free cancellation. Timezone-aware.
+
+#### Feature: In-App Messaging
+- **Description**: Direct messaging between surfer and coach, pre- and post-booking.
+- **Inputs**: User IDs, message text, optional media attachments
+- **Outputs**: Chat thread
+- **Behavior**: Push notifications for new messages. Message history persisted. No phone number exchange required. Media support for sharing wave photos/video clips.
+
+#### Feature: Payments
+- **Description**: In-app payment processing for coach bookings with Surflow taking a platform fee.
+- **Inputs**: Booking details, payment method (card, Apple Pay)
+- **Outputs**: Payment confirmation, receipt, coach payout
+- **Behavior**: Stripe Connect for split payments. Coach receives payout after session completion (24h hold). Refund on cancellation within policy. Platform fee: 15%.
+
+#### Feature: Reviews & Ratings
+- **Description**: Post-session review system. Surfers rate coaches; coaches can respond.
+- **Inputs**: Completed booking, star rating (1–5), text review
+- **Outputs**: Review on coach profile, aggregate rating update
+- **Behavior**: Review prompt 2 hours after session end time. Coach can respond publicly. Flagging system for abuse. Minimum 3 reviews before aggregate shown.
+
+---
+
+### Capability: User Identity & Session Management
+Authentication, profiles, and session logging.
+
+#### Feature: Authentication
+- **Description**: Sign up / sign in via email+password, Apple Sign-In, and Google Sign-In.
+- **Inputs**: Credentials or OAuth token
+- **Outputs**: Authenticated session, JWT
+- **Behavior**: Apple Sign-In required for iOS App Store. Email verification. Password reset flow. Session refresh tokens.
+
+#### Feature: User Profiles
+- **Description**: User profile with name, photo, home break, surf level, injury history (optional), and preferences.
+- **Inputs**: User-submitted data
+- **Outputs**: Profile object, settings
+- **Behavior**: Minimal required fields (name, email). Optional enrichment for better recommendations. Profile visible to coaches when booking.
+
+#### Feature: Surf Session Logging
+- **Description**: Log surf sessions with spot, duration, conditions, and personal notes.
+- **Inputs**: Spot (auto-suggested from location), start/end time, conditions (auto-filled from forecast), notes, rating
+- **Outputs**: Session log entry, feeds into PT recommendations and personal stats
+- **Behavior**: Quick-log (one tap: "I surfed here for 2 hours") or detailed log. Auto-suggest spot based on GPS. Pull conditions from forecast data.
+
+---
+
+### Capability: Platform Infrastructure
+Cross-cutting concerns: notifications, offline support, analytics.
+
+#### Feature: Push Notifications
+- **Description**: Unified notification system for forecast alerts, PT reminders, booking updates, and messages.
+- **Inputs**: Notification trigger events
+- **Outputs**: Push notification (APNs for iOS, web push for browser)
+- **Behavior**: User-configurable per category. Quiet hours respected. Badge count management.
+
+#### Feature: Offline Support
+- **Description**: Core forecast data, spot metadata, and PT exercise videos available offline.
+- **Inputs**: User's favorited spots, downloaded routines
+- **Outputs**: Cached data accessible without network
+- **Behavior**: Background sync when online. Stale data indicator. Offline-first for PT videos.
+
+#### Feature: Analytics & Telemetry
+- **Description**: Track user behavior for product decisions. Privacy-respecting, no PII in analytics.
+- **Inputs**: User events (screen views, feature usage, session logs)
+- **Outputs**: Analytics dashboard (Mixpanel or PostHog)
+- **Behavior**: Consent-based. GDPR-compliant. Event schema defined upfront.
+
+</functional-decomposition>
+
+---
+
+<structural-decomposition>
+
+## Repository Structure
+
+```
+surflow/
+├── apps/
+│   ├── mobile/                    # React Native (Expo) — iOS + Android
+│   │   ├── app/                   # Expo Router file-based routing
+│   │   │   ├── (tabs)/            # Tab navigation (Forecast, Cams, PT, Coaches, Profile)
+│   │   │   ├── spot/[id].tsx      # Spot detail screen
+│   │   │   ├── coach/[id].tsx     # Coach profile screen
+│   │   │   ├── booking/[id].tsx   # Booking flow
+│   │   │   └── auth/              # Auth screens
+│   │   ├── components/            # Mobile-specific components
+│   │   ├── hooks/                 # Mobile-specific hooks
+│   │   └── assets/                # Images, fonts
+│   │
+│   └── web/                       # Next.js — Web app + marketing site
+│       ├── app/                   # App Router
+│       │   ├── (marketing)/       # Landing, pricing, about
+│       │   ├── (app)/             # Authenticated app routes
+│       │   │   ├── forecast/      # Forecast views
+│       │   │   ├── webcams/       # Webcam views
+│       │   │   ├── recovery/      # PT/recovery section
+│       │   │   ├── coaches/       # Coach marketplace
+│       │   │   └── profile/       # User profile & settings
+│       │   └── api/               # API routes (BFF pattern)
+│       └── components/            # Web-specific components
+│
+├── packages/
+│   ├── core/                      # Shared business logic (TypeScript)
+│   │   ├── forecast/              # Forecast aggregation, normalization, rating
+│   │   ├── spots/                 # Spot data, search, favorites
+│   │   ├── pt/                    # Exercise library, routine engine
+│   │   ├── coaches/               # Coach search, booking logic
+│   │   ├── sessions/              # Surf session logging
+│   │   └── types/                 # Shared TypeScript types
+│   │
+│   ├── ui/                        # Shared UI components (React Native + Web via tamagui or shared primitives)
+│   │   ├── forecast-card/
+│   │   ├── spot-card/
+│   │   ├── exercise-card/
+│   │   ├── coach-card/
+│   │   └── primitives/            # Button, Text, Card, etc.
+│   │
+│   └── api-client/                # Typed API client (shared between mobile + web)
+│       ├── forecast.ts
+│       ├── webcams.ts
+│       ├── pt.ts
+│       ├── coaches.ts
+│       └── auth.ts
+│
+├── services/
+│   └── api/                       # Backend API (Node.js / Hono or tRPC)
+│       ├── routes/
+│       │   ├── forecast/          # Forecast endpoints
+│       │   ├── webcams/           # Webcam proxy/metadata
+│       │   ├── pt/                # PT content endpoints
+│       │   ├── coaches/           # Coach CRUD, search
+│       │   ├── bookings/          # Booking + payments
+│       │   ├── sessions/          # Session logging
+│       │   ├── auth/              # Auth endpoints
+│       │   └── notifications/     # Notification dispatch
+│       ├── services/              # Business logic services
+│       ├── db/                    # Database schema, migrations (Drizzle + Postgres)
+│       ├── jobs/                  # Background jobs (forecast polling, notification dispatch)
+│       └── integrations/          # Third-party API clients (NOAA, Copernicus, Stripe, APNs)
+│
+├── .taskmaster/                   # Task Master project management
+├── turbo.json                     # Turborepo config
+├── package.json                   # Root workspace
+└── .env.example
+```
+
+## Module Definitions
+
+### Module: packages/core
+- **Maps to capability**: All capabilities (shared business logic)
+- **Responsibility**: Platform-agnostic business logic, data transformations, and types
+- **Exports**:
+  - `normalizeForecast()` — merge multi-source data into unified format
+  - `rateSurfConditions()` — 1–5 star rating for a spot given conditions
+  - `suggestRecoveryRoutine()` — recommend PT routine based on session
+  - `searchCoaches()` — filter/sort coach results
+  - All shared TypeScript types and Zod schemas
+
+### Module: packages/ui
+- **Maps to capability**: Presentation layer across all capabilities
+- **Responsibility**: Shared React components that work on both mobile (React Native) and web
+- **Exports**:
+  - `<ForecastCard>`, `<SpotCard>`, `<ExerciseCard>`, `<CoachCard>`
+  - `<StarRating>`, `<ConditionsBadge>`, `<TimerView>`
+  - Primitive components: `<Button>`, `<Text>`, `<Card>`, `<Input>`
+
+### Module: packages/api-client
+- **Maps to capability**: Data layer for all capabilities
+- **Responsibility**: Typed HTTP client for communicating with the backend API
+- **Exports**:
+  - `forecastApi.getSpotForecast(spotId)`, `forecastApi.getAlerts()`
+  - `webcamApi.getStream(spotId)`, `webcamApi.getTimelapse(spotId, range)`
+  - `ptApi.getExercises(filters)`, `ptApi.getRoutine(type)`
+  - `coachApi.search(filters)`, `coachApi.book(coachId, details)`
+  - `authApi.signIn()`, `authApi.signUp()`, `authApi.refresh()`
+
+### Module: services/api
+- **Maps to capability**: All capabilities (server-side)
+- **Responsibility**: REST API, database access, third-party integrations, background jobs
+- **Key sub-modules**:
+  - `routes/` — HTTP endpoint handlers
+  - `services/` — Business logic (decoupled from HTTP)
+  - `db/` — Drizzle ORM schema, migrations, queries
+  - `jobs/` — Cron-like background tasks (forecast polling, notification dispatch)
+  - `integrations/` — NOAA, Copernicus, Stripe, APNs clients
+
+### Module: apps/mobile
+- **Maps to capability**: Mobile presentation for all capabilities
+- **Responsibility**: Expo/React Native iOS app with tab navigation
+- **Key screens**: Forecast tab, Webcams tab, Recovery tab, Coaches tab, Profile tab
+
+### Module: apps/web
+- **Maps to capability**: Web presentation for all capabilities + marketing
+- **Responsibility**: Next.js web app for browser access + marketing/landing pages
+- **Key routes**: `/forecast`, `/webcams`, `/recovery`, `/coaches`, `/profile`
+
+</structural-decomposition>
+
+---
+
+<dependency-graph>
+
+## Dependency Chain
+
+### Foundation Layer (Phase 0)
+No dependencies — these are built first.
+
+- **packages/core/types**: Shared TypeScript types and Zod schemas (Spot, Forecast, Exercise, Coach, User, Session, Booking)
+- **services/api/db**: Database schema and migrations (Postgres via Drizzle). Tables for users, spots, exercises, coaches, bookings, sessions, reviews.
+- **Monorepo scaffold**: Turborepo config, workspace setup, ESLint/Prettier, CI skeleton
+
+### Data Layer (Phase 1)
+- **services/api/auth**: Depends on [core/types, db]. JWT-based auth, Apple/Google OAuth, session management.
+- **services/api/integrations/forecast-sources**: Depends on [core/types]. NOAA, Copernicus, Open-Meteo API clients.
+- **packages/core/forecast**: Depends on [core/types]. Normalization, aggregation, and rating logic.
+- **packages/core/spots**: Depends on [core/types]. Spot search, distance calculation, favorites.
+
+### Core API Layer (Phase 2)
+- **services/api/routes/auth**: Depends on [api/auth]. Sign up, sign in, refresh, profile endpoints.
+- **services/api/routes/forecast**: Depends on [core/forecast, integrations/forecast-sources, db]. Forecast endpoints per spot.
+- **services/api/routes/spots**: Depends on [core/spots, db]. Spot directory, search, favorites endpoints.
+- **services/api/jobs/forecast-poller**: Depends on [integrations/forecast-sources, db]. Background job to poll and cache forecast data.
+- **packages/api-client**: Depends on [core/types]. Typed HTTP client (can be built in parallel with API routes using types as contract).
+
+### Content Layer (Phase 3)
+- **services/api/routes/pt**: Depends on [db, auth]. Exercise and routine CRUD, progress tracking endpoints.
+- **packages/core/pt**: Depends on [core/types]. Routine suggestion engine, session-to-recovery logic.
+- **services/api/routes/webcams**: Depends on [db, auth]. Webcam metadata, stream URLs, snapshot storage.
+
+### Marketplace Layer (Phase 4)
+- **services/api/routes/coaches**: Depends on [db, auth, core/types]. Coach profiles, search, availability.
+- **services/api/routes/bookings**: Depends on [coaches, auth, db]. Booking creation, Stripe Connect integration.
+- **services/api/integrations/stripe**: Depends on [core/types]. Stripe Connect for split payments, refunds.
+- **services/api/routes/reviews**: Depends on [bookings, auth, db]. Post-session reviews and ratings.
+- **services/api/routes/messages**: Depends on [auth, db]. Real-time messaging between surfers and coaches.
+
+### Presentation Layer (Phase 5)
+- **packages/ui**: Depends on [core/types]. Shared UI component library.
+- **apps/mobile**: Depends on [packages/ui, packages/api-client, core/types]. Full mobile app.
+- **apps/web**: Depends on [packages/ui, packages/api-client, core/types]. Full web app.
+
+### Polish Layer (Phase 6)
+- **services/api/routes/notifications**: Depends on [auth, bookings, forecast-poller]. Push notification dispatch.
+- **services/api/routes/sessions**: Depends on [auth, db, core/forecast, core/pt]. Session logging with auto-suggestions.
+- **Offline support**: Depends on [api-client, core/forecast, core/pt]. Cache layer in mobile + web.
+- **Analytics integration**: Depends on [apps/mobile, apps/web]. Event tracking setup.
+
+</dependency-graph>
+
+---
+
+<implementation-roadmap>
+
+## Development Phases
+
+### Phase 0: Foundation
+**Goal**: Monorepo scaffold, database schema, and shared types — the skeleton everything builds on.
+
+**Entry Criteria**: Empty project directory (already initialized with Task Master).
+
+**Tasks**:
+- [ ] Initialize Turborepo monorepo with apps/mobile, apps/web, packages/core, packages/ui, packages/api-client, services/api workspaces
+  - Acceptance criteria: `turbo build` runs across all workspaces without error
+  - Test strategy: CI build pipeline passes
+
+- [ ] Define shared TypeScript types and Zod schemas in packages/core/types
+  - Acceptance criteria: Spot, Forecast, Exercise, Coach, User, Session, Booking, Review types exported and importable from all workspaces
+  - Test strategy: Unit tests validate schema parsing for each type
+
+- [ ] Set up Postgres database with Drizzle ORM in services/api/db
+  - Acceptance criteria: All tables created via migration. Seed script populates test data.
+  - Test strategy: Migration runs cleanly on fresh database. Seed data queryable.
+
+- [ ] Set up Expo project with file-based routing (Expo Router) and tab navigation skeleton
+  - Acceptance criteria: App builds and runs on iOS simulator with 5 empty tab screens
+  - Test strategy: Manual — app launches, tabs navigate
+
+- [ ] Set up Next.js web app with App Router, (marketing) and (app) route groups
+  - Acceptance criteria: `next dev` runs. Marketing landing page renders. Auth-gated app shell renders.
+  - Test strategy: Manual — pages load, route groups work
+
+**Exit Criteria**: All workspaces build. Database migrated. Both apps render skeleton UIs.
+
+**Delivers**: Developer can start building features in any capability area.
+
+---
+
+### Phase 1: Forecast Core (MVP Differentiator)
+**Goal**: Working surf forecast from real data sources, displayed in both apps.
+
+**Entry Criteria**: Phase 0 complete.
+
+**Tasks**:
+- [ ] Build forecast data source integrations (NOAA/NDBC, Open-Meteo, Copernicus)
+  - Acceptance criteria: Each source returns normalized data for a test spot
+  - Test strategy: Integration tests against live APIs with mocked fallbacks
+
+- [ ] Implement forecast normalization and surf rating engine in packages/core/forecast
+  - Acceptance criteria: Given multi-source raw data, outputs unified forecast with 1–5 star rating
+  - Test strategy: Unit tests with fixture data for known-good conditions
+
+- [ ] Build forecast API endpoints (GET /spots/:id/forecast, GET /spots)
+  - Acceptance criteria: Returns forecast for any seeded spot. Handles missing data gracefully.
+  - Test strategy: API integration tests
+
+- [ ] Build forecast poller background job
+  - Acceptance criteria: Runs on schedule, updates cached forecasts in DB
+  - Test strategy: Job runs without error, DB updated
+
+- [ ] Curate initial spot database for Morocco (15–20 spots) and Bali (15–20 spots)
+  - Acceptance criteria: Spots seeded with GPS, orientation, ideal conditions metadata
+  - Test strategy: All spots return valid forecasts
+
+- [ ] Build ForecastCard and SpotCard shared UI components
+  - Acceptance criteria: Render correctly on mobile and web with real data
+  - Test strategy: Component tests (React Testing Library)
+
+- [ ] Integrate forecast display into mobile app (Forecast tab) and web app (/forecast)
+  - Acceptance criteria: User sees current conditions for favorited/nearby spots
+  - Test strategy: End-to-end: app → API → data source → rendered UI
+
+**Exit Criteria**: A surfer in Taghazout opens the app and sees accurate, current conditions for nearby breaks.
+
+**Delivers**: Core value proposition — "Is it worth paddling out right now?"
+
+---
+
+### Phase 2: Webcams & Visual Context
+**Goal**: Live webcam feeds paired with forecast data for visual confirmation.
+
+**Entry Criteria**: Phase 1 complete (forecasts displaying).
+
+**Tasks**:
+- [ ] Research and integrate webcam sources for Morocco and Bali (public feeds, potential partnerships)
+  - Acceptance criteria: At least 5 working feeds per region
+  - Test strategy: Streams load in browser and mobile
+
+- [ ] Build webcam metadata service and stream proxy
+  - Acceptance criteria: API returns stream URLs and availability status per spot
+  - Test strategy: API tests, stream health checks
+
+- [ ] Build webcam viewer component with forecast overlay
+  - Acceptance criteria: Live video plays with conditions data overlay. Tap to toggle.
+  - Test strategy: Component test + manual verification on device
+
+- [ ] Build time-lapse / rewind feature (server-side snapshot storage)
+  - Acceptance criteria: Last 4 hours of snapshots viewable as scrubable time-lapse
+  - Test strategy: Time-lapse assembles and plays correctly
+
+- [ ] Integrate webcam views into mobile (Webcams tab) and web (/webcams)
+  - Acceptance criteria: User can view live cam for any spot with a feed
+  - Test strategy: E2E on both platforms
+
+**Exit Criteria**: User checks forecast, taps through to webcam, sees live conditions with data overlay.
+
+**Delivers**: "See before you go" — visual confirmation of conditions.
+
+---
+
+### Phase 3: Physical Therapy & Recovery
+**Goal**: Surf-specific PT library with guided routines linked to surf sessions.
+
+**Entry Criteria**: Phase 0 complete (can start in parallel with Phase 2).
+
+**Tasks**:
+- [ ] Source and curate exercise library (20–30 surf-specific exercises)
+  - Acceptance criteria: Exercises cover shoulders, hips, lower back, ankles, neck. Video demonstrations recorded or licensed.
+  - Test strategy: Content review by surf PT professional (outsourced)
+
+- [ ] Build PT content API (exercises, routines, progress)
+  - Acceptance criteria: CRUD for exercises and routines. Progress tracking per user.
+  - Test strategy: API integration tests
+
+- [ ] Build routine suggestion engine in packages/core/pt
+  - Acceptance criteria: Given session duration/intensity, suggests appropriate routine
+  - Test strategy: Unit tests for various session profiles
+
+- [ ] Build ExerciseCard and TimerView shared UI components
+  - Acceptance criteria: Exercise plays video inline, timer counts down with audio cues
+  - Test strategy: Component tests
+
+- [ ] Build guided routine flow (exercise sequence with timers, transitions, progress)
+  - Acceptance criteria: User completes a full routine with smooth transitions
+  - Test strategy: E2E walkthrough on mobile
+
+- [ ] Build progress tracking (calendar heatmap, streaks, body-area chart)
+  - Acceptance criteria: Visualizations render with real completion data
+  - Test strategy: Component tests with fixture data
+
+- [ ] Integrate into mobile (Recovery tab) and web (/recovery)
+  - Acceptance criteria: Full PT experience accessible from both platforms
+  - Test strategy: E2E on both platforms
+
+**Exit Criteria**: Surfer finishes a session, gets a push prompt, and completes a 15-minute shoulder recovery routine.
+
+**Delivers**: "Surf more, hurt less" — the recovery loop.
+
+---
+
+### Phase 4: Coach Marketplace
+**Goal**: Two-sided marketplace for coach discovery, booking, payment, and reviews.
+
+**Entry Criteria**: Phase 1 complete (auth, spots, and core infrastructure stable).
+
+**Tasks**:
+- [ ] Build coach profile system (registration, profile CRUD, verification workflow)
+  - Acceptance criteria: Coach can sign up, fill profile, upload media. Admin can verify.
+  - Test strategy: API tests + manual admin flow
+
+- [ ] Build coach search and discovery API
+  - Acceptance criteria: Search by location, specialty, availability, rating, price, language
+  - Test strategy: API tests with varied filter combinations
+
+- [ ] Integrate Stripe Connect for coach payouts
+  - Acceptance criteria: Coach onboards to Stripe. Test payment splits correctly (85% coach, 15% platform).
+  - Test strategy: Stripe test mode end-to-end payment flow
+
+- [ ] Build booking system (availability, instant booking, cancellation)
+  - Acceptance criteria: Book, confirm, cancel flow works. Calendar entries created.
+  - Test strategy: E2E booking flow with Stripe test mode
+
+- [ ] Build in-app messaging (surfer ↔ coach)
+  - Acceptance criteria: Real-time messaging with push notifications. Media sharing.
+  - Test strategy: Two-user messaging test
+
+- [ ] Build review and rating system
+  - Acceptance criteria: Post-session review prompt. Reviews display on coach profile. Aggregate rating.
+  - Test strategy: API tests, UI rendering tests
+
+- [ ] Build CoachCard, booking flow UI, messaging UI components
+  - Acceptance criteria: Render correctly on mobile and web
+  - Test strategy: Component tests
+
+- [ ] Integrate into mobile (Coaches tab) and web (/coaches)
+  - Acceptance criteria: End-to-end: discover → book → pay → message → review
+  - Test strategy: Full E2E user journey on both platforms
+
+**Exit Criteria**: A surfer in Bali finds a local coach, books a session, pays, messages about meeting point, completes session, and leaves a review.
+
+**Delivers**: "Find your local guide" — the marketplace.
+
+---
+
+### Phase 5: Session Logging & Connectivity
+**Goal**: Tie the experience together — log sessions, trigger recovery, build personal history.
+
+**Entry Criteria**: Phases 1, 3, and 4 substantially complete.
+
+**Tasks**:
+- [ ] Build session logging API and UI (quick-log + detailed log)
+  - Acceptance criteria: Log a session in <10 seconds (quick) or with full details
+  - Test strategy: E2E on mobile
+
+- [ ] Auto-suggest spot from GPS and auto-fill conditions from forecast
+  - Acceptance criteria: Opening session logger near a known spot pre-fills spot and conditions
+  - Test strategy: Location simulation test
+
+- [ ] Session-to-recovery trigger (post-session push notification → PT routine)
+  - Acceptance criteria: 1–4 hours after session, user gets recovery prompt
+  - Test strategy: Scheduled notification test
+
+- [ ] Personal stats dashboard (sessions over time, spots surfed, recovery consistency)
+  - Acceptance criteria: Dashboard renders with real user data
+  - Test strategy: Component test with fixture data
+
+**Exit Criteria**: User's surf-recovery loop is automated and tracked.
+
+**Delivers**: The connected experience — forecast → surf → recover → improve.
+
+---
+
+### Phase 6: Polish & Launch Prep
+**Goal**: Notifications, offline support, analytics, App Store submission, marketing site.
+
+**Entry Criteria**: Phases 1–5 feature-complete.
+
+**Tasks**:
+- [ ] Implement unified push notification system (APNs + web push)
+  - Acceptance criteria: All notification types fire correctly with user preferences respected
+  - Test strategy: Notification delivery tests per channel
+
+- [ ] Implement offline support (forecast cache, spot metadata, PT video downloads)
+  - Acceptance criteria: Core features work without network (degraded but usable)
+  - Test strategy: Airplane mode testing
+
+- [ ] Integrate analytics (PostHog or Mixpanel)
+  - Acceptance criteria: Key events tracked, dashboard configured
+  - Test strategy: Event verification in analytics dashboard
+
+- [ ] Build marketing landing page (apps/web marketing routes)
+  - Acceptance criteria: Landing page, feature overview, App Store link, email capture
+  - Test strategy: Visual QA, lighthouse score >90
+
+- [ ] App Store submission (iOS)
+  - Acceptance criteria: App accepted by Apple review
+  - Test strategy: TestFlight beta distribution, Apple review checklist
+
+- [ ] Onboard initial coach cohort (10 Morocco, 10 Bali)
+  - Acceptance criteria: 20 coaches with complete profiles, verified, and active
+  - Test strategy: Manual verification of profiles
+
+**Exit Criteria**: App live on App Store, web app deployed, initial coaches active, analytics flowing.
+
+**Delivers**: Public launch.
+
+</implementation-roadmap>
+
+---
+
+<test-strategy>
+
+## Test Pyramid
+
+```
+        /\
+       /E2E\       ← 10% (Critical user journeys: forecast check, booking flow, PT routine)
+      /------\
+     /Integration\ ← 30% (API endpoints, database queries, third-party integrations)
+    /------------\
+   /  Unit Tests  \ ← 60% (Core logic: forecast normalization, rating engine, routine suggestions)
+  /----------------\
+```
+
+## Coverage Requirements
+- Line coverage: 80% minimum (packages/core)
+- Branch coverage: 70% minimum
+- Function coverage: 85% minimum
+- Statement coverage: 80% minimum
+
+## Critical Test Scenarios
+
+### Forecast Engine
+**Happy path**: Multi-source data merges into correct unified forecast with accurate rating
+**Edge cases**: One source down (graceful degradation), stale data detection, spots with no buoy coverage
+**Error cases**: All sources timeout, malformed API responses, rate limiting
+**Integration**: Forecast poller → DB → API → client rendering pipeline
+
+### Coach Marketplace
+**Happy path**: Search → view profile → book → pay → message → complete → review
+**Edge cases**: Concurrent booking for same slot, coach cancels, timezone edge cases
+**Error cases**: Stripe payment failure, webhook retry, coach account deactivation mid-booking
+**Integration**: Stripe Connect onboarding, payment split, refund flow
+
+### Physical Therapy
+**Happy path**: Complete guided routine with timers, log completion, see progress
+**Edge cases**: App backgrounded mid-routine, offline routine completion
+**Error cases**: Video fails to load, timer desync
+**Integration**: Session log triggers recovery suggestion → correct routine selected
+
+## Test Generation Guidelines
+- Use Vitest for unit and integration tests
+- Use Playwright for web E2E, Detox or Maestro for mobile E2E
+- Mock third-party APIs (NOAA, Stripe) with recorded responses for CI
+- Use Stripe test mode with test clock for payment lifecycle testing
+- Test forecast rating engine with known-condition fixtures (e.g., "perfect day at Anchor Point" should rate 5 stars)
+
+</test-strategy>
+
+---
+
+<architecture>
+
+## System Components
+
+```
+┌──────────────┐  ┌──────────────┐
+│  iOS App     │  │   Web App    │
+│  (Expo/RN)   │  │  (Next.js)   │
+└──────┬───────┘  └──────┬───────┘
+       │                 │
+       └────────┬────────┘
+                │
+        ┌───────▼────────┐
+        │   API Server    │   (Hono on Node.js, deployed as Vercel Functions or standalone)
+        │   + WebSocket   │   (for real-time messaging)
+        └───────┬────────┘
+                │
+     ┌──────────┼──────────┐
+     │          │          │
+┌────▼───┐ ┌───▼────┐ ┌───▼────┐
+│Postgres│ │  Redis  │ │  Blob  │
+│(Neon)  │ │(Upstash)│ │Storage │
+└────────┘ └────────┘ └────────┘
+                │
+    ┌───────────┼───────────┐
+    │           │           │
+┌───▼──┐  ┌────▼───┐  ┌────▼────┐
+│ NOAA │  │Open-   │  │ Stripe  │
+│ NDBC │  │Meteo   │  │ Connect │
+└──────┘  └────────┘  └─────────┘
+```
+
+## Data Models (Core)
+
+**Spot**: id, name, slug, region (morocco|bali), gps (lat/lng), orientation, break_type (reef|beach|point), ideal_swell_dir, ideal_wind_dir, webcam_urls[], description, image_url
+
+**Forecast**: id, spot_id, timestamp, source, swell_height, swell_period, swell_direction, wind_speed, wind_direction, tide_height, tide_state (rising|falling|high|low), water_temp, air_temp, rating (1–5)
+
+**User**: id, email, name, avatar_url, auth_provider, surf_level, home_spot_id?, injury_areas[], created_at
+
+**Coach**: id, user_id, bio, certifications[], specialties[], languages[], hourly_rate, currency, stripe_account_id, region, verified, rating_avg, rating_count, active
+
+**Booking**: id, surfer_id, coach_id, session_type (1on1|group|video_analysis), start_time, end_time, status (confirmed|completed|cancelled), stripe_payment_id, amount, platform_fee, notes
+
+**Exercise**: id, name, description, video_url, body_areas[], surf_relevance[], difficulty (beginner|intermediate|advanced), duration_seconds, sets, reps
+
+**Routine**: id, name, type (warmup|cooldown|recovery|injury), exercises[] (ordered, with rest intervals), estimated_duration, target_intensity
+
+**Session**: id, user_id, spot_id, started_at, ended_at, conditions_snapshot (forecast at time), notes, personal_rating (1–5)
+
+**Review**: id, booking_id, reviewer_id, coach_id, rating (1–5), text, coach_response?, created_at
+
+**Message**: id, thread_id, sender_id, body, media_url?, read_at?, created_at
+
+## Technology Stack
+
+| Layer | Technology | Rationale |
+|-------|-----------|-----------|
+| Mobile | Expo (React Native) | Code sharing with web, OTA updates, strong iOS support |
+| Web | Next.js 16 (App Router) | SSR for marketing/SEO, app routes for authenticated experience |
+| Shared UI | Tamagui or React Native Web | Cross-platform component primitives |
+| API | Hono (on Node.js) | Lightweight, fast, TypeScript-native, Vercel Functions compatible |
+| Database | Neon (Serverless Postgres) | Branching for dev, serverless scaling, Vercel Marketplace |
+| Cache | Upstash Redis | Session cache, rate limiting, real-time pub/sub for messaging |
+| File storage | Vercel Blob | Coach photos, exercise videos, webcam snapshots |
+| Payments | Stripe Connect | Marketplace split payments, Apple Pay support |
+| Auth | Supabase Auth or Clerk | Apple Sign-In, Google OAuth, JWT management |
+| Push notifications | Expo Notifications (APNs) + web-push | Unified push across platforms |
+| Monorepo | Turborepo | Build caching, workspace management |
+| Analytics | PostHog | Privacy-friendly, self-hostable, feature flags |
+| CI/CD | GitHub Actions + Vercel | Auto-deploy web, EAS Build for mobile |
+
+**Decision: Expo (React Native) over native Swift**
+- **Rationale**: Maximizes code sharing between iOS and web (packages/core, packages/ui). Single TypeScript codebase. Expo's managed workflow handles App Store submissions, OTA updates, and push notifications.
+- **Trade-offs**: Slight performance hit vs native for video-heavy features (webcams). Mitigated by using native video player modules.
+- **Alternatives considered**: SwiftUI (better perf, no code sharing), Flutter (Dart ecosystem doesn't align with Next.js web).
+
+**Decision: Hono over tRPC for API**
+- **Rationale**: Lightweight, works as Vercel Functions. REST is better for the marketplace (public coach profiles, SEO). Type safety via Zod schemas shared from packages/core.
+- **Trade-offs**: No automatic type inference like tRPC. Mitigated by shared Zod schemas and typed api-client package.
+- **Alternatives considered**: tRPC (tighter types, but poor fit for public API surface), Express (heavier, less TypeScript-native).
+
+</architecture>
+
+---
+
+<risks>
+
+## Technical Risks
+
+**Risk**: Forecast data source APIs are unreliable or rate-limited
+- **Impact**: High — core value proposition breaks
+- **Likelihood**: Medium — NOAA is stable but slow; Copernicus has auth complexity
+- **Mitigation**: Multi-source aggregation with graceful degradation. Aggressive caching (hourly refresh). Stale-data indicators in UI.
+- **Fallback**: Pre-compute forecasts server-side on schedule rather than real-time fetching.
+
+**Risk**: Webcam feed availability is inconsistent across regions
+- **Impact**: Medium — feature works in some spots but not others
+- **Likelihood**: High — Morocco has fewer public webcams than established surf regions
+- **Mitigation**: Start with available feeds, mark spots without cams clearly. Explore partnerships with local surf camps for camera installations.
+- **Fallback**: Crowd-sourced "conditions check-in" feature as alternative visual confirmation.
+
+**Risk**: Cross-platform UI consistency between React Native and Next.js
+- **Impact**: Medium — divergent UX between platforms
+- **Likelihood**: Medium — Tamagui/RN Web bridging is maturing but has edge cases
+- **Mitigation**: Shared design tokens and component library. Accept platform-appropriate differences. Test both platforms in CI.
+- **Fallback**: Separate component implementations sharing only business logic.
+
+## Dependency Risks
+
+**Risk**: Stripe Connect onboarding friction for coaches in Morocco/Bali
+- **Impact**: High — marketplace can't function without payments
+- **Likelihood**: Medium — Stripe availability varies by country
+- **Mitigation**: Research Stripe availability in Morocco and Indonesia early. Identify alternative payment processors if needed (Paystack for Morocco, Xendit for Indonesia).
+- **Fallback**: Manual invoicing for initial coach cohort while payments are resolved.
+
+**Risk**: Apple App Store review rejection
+- **Impact**: High — blocks iOS launch
+- **Likelihood**: Low-Medium — marketplace apps require careful compliance
+- **Mitigation**: Follow Apple guidelines for marketplace apps (in-app purchase vs. physical service exemption). Apple Sign-In included from day one.
+- **Fallback**: TestFlight distribution for initial user testing while resolving review issues.
+
+## Scope Risks
+
+**Risk**: Building too much before validating core value (forecast + recovery loop)
+- **Impact**: High — wasted effort if core assumption is wrong
+- **Likelihood**: Medium
+- **Mitigation**: Phase 1 delivers forecast-only MVP. Validate with 50 surfers in Taghazout before building marketplace.
+- **Fallback**: Pivot to forecast-only app if marketplace doesn't gain traction.
+
+**Risk**: Exercise content creation bottleneck
+- **Impact**: Medium — PT feature feels thin without enough exercises
+- **Likelihood**: Medium — video production takes time
+- **Mitigation**: Start with 20 exercises (minimum viable library). Partner with a surf PT professional for content. Text + illustration first, video second.
+- **Fallback**: Link to curated external content while building own library.
+
+</risks>
+
+---
+
+<appendix>
+
+## References
+- NOAA/NDBC Buoy Data: https://www.ndbc.noaa.gov/
+- Copernicus Marine Service: https://marine.copernicus.eu/
+- Open-Meteo API: https://open-meteo.com/
+- Expo Documentation: https://docs.expo.dev/
+- Stripe Connect: https://stripe.com/connect
+- Hono Framework: https://hono.dev/
+- Tamagui: https://tamagui.dev/
+- Drizzle ORM: https://orm.drizzle.team/
+
+## Glossary
+- **Spot**: A specific surf break location (e.g., "Anchor Point", "Uluwatu")
+- **Swell**: Ocean wave energy traveling across the surface, measured in height (ft/m), period (seconds), and direction (degrees)
+- **Offshore wind**: Wind blowing from land to sea, grooming wave faces — ideal conditions
+- **Onshore wind**: Wind blowing from sea to land, making waves choppy — poor conditions
+- **Lineup**: The area where surfers sit waiting for waves
+- **Pop-up**: The motion of going from prone to standing on the board
+- **PT**: Physical therapy
+- **ISA**: International Surfing Association (coaching certification body)
+
+## Open Questions
+1. **Webcam partnerships**: Who operates existing webcam feeds in Taghazout and Bali? What are licensing terms?
+2. **PT content licensing**: Partner with a surf PT professional, or build in-house? Budget for video production?
+3. **Stripe in Morocco**: Is Stripe Connect available for Moroccan coach payouts? If not, what's the alternative?
+4. **Monetization model**: Freemium (free forecasts, paid PT + cams)? Or free app + marketplace commission only?
+5. **Coach vetting**: How rigorous is verification at launch? Certification required, or self-declared experience?
+6. **Android**: Expo supports Android — include in v1, or iOS-only first?
+7. **Localization**: Arabic for Morocco? Bahasa for Bali? English-only at launch?
+
+</appendix>

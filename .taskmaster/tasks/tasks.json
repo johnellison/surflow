@@ -1,0 +1,776 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": "1",
+        "title": "Initialize Monorepo Infrastructure and Database Schema",
+        "description": "Set up the foundational Turborepo monorepo structure with all workspaces, shared TypeScript types, and Postgres database schema with Drizzle ORM",
+        "details": "1. Initialize Turborepo with workspaces: apps/mobile (Expo), apps/web (Next.js), packages/core, packages/ui, packages/api-client, services/api\n2. Configure turbo.json with build/dev/test scripts\n3. Set up ESLint, Prettier, TypeScript configs shared across workspaces\n4. Define core TypeScript types in packages/core/types: Spot, Forecast, Exercise, Coach, User, Session, Booking, Review, Message with Zod schemas\n5. Set up Postgres database with Drizzle ORM in services/api/db\n6. Create database tables: users, spots, exercises, coaches, bookings, sessions, reviews, messages, forecasts\n7. Write migration scripts and seed data for Morocco (20 spots) and Bali (20 spots)\n8. Configure environment variables and secrets management",
+        "testStrategy": "Verify turbo build runs across all workspaces without error. Test database migration runs cleanly on fresh database. Validate all TypeScript types export correctly and Zod schemas parse test data. Run seed script and query test data successfully.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize Turborepo Structure and Workspace Configuration",
+            "description": "Set up the foundational Turborepo monorepo with all required workspaces and build configuration",
+            "dependencies": [],
+            "details": "Initialize Turborepo with workspaces: apps/mobile (Expo), apps/web (Next.js), packages/core, packages/ui, packages/api-client, services/api. Configure turbo.json with build/dev/test scripts for all workspaces. Set up package.json dependencies and workspace references.",
+            "status": "done",
+            "testStrategy": "Verify turbo build runs across all workspaces without error. Test that turbo dev starts all development servers correctly.",
+            "parentId": "undefined",
+            "updatedAt": "2026-03-20T15:38:39.379Z"
+          },
+          {
+            "id": 2,
+            "title": "Configure Shared Development Tools and TypeScript Setup",
+            "description": "Set up ESLint, Prettier, and TypeScript configurations shared across all workspaces",
+            "dependencies": [
+              1
+            ],
+            "details": "Create shared ESLint config with React, TypeScript, and Expo rules. Set up Prettier configuration for consistent code formatting. Configure TypeScript with strict mode and path mapping for workspace imports. Set up VS Code workspace settings and recommended extensions.",
+            "status": "done",
+            "testStrategy": "Run ESLint and Prettier across all workspaces. Verify TypeScript compilation works with workspace imports and no type errors.",
+            "parentId": "undefined",
+            "updatedAt": "2026-03-20T15:38:53.847Z"
+          },
+          {
+            "id": 3,
+            "title": "Define Core TypeScript Types and Zod Schemas",
+            "description": "Create comprehensive TypeScript types and Zod validation schemas for all core entities",
+            "dependencies": [
+              2
+            ],
+            "details": "Define core TypeScript types in packages/core/types: Spot, Forecast, Exercise, Coach, User, Session, Booking, Review, Message with complete properties and relationships. Create corresponding Zod schemas for runtime validation and API contract enforcement. Export all types and schemas with proper documentation.",
+            "status": "done",
+            "testStrategy": "Validate all TypeScript types export correctly. Test Zod schemas parse valid test data and reject invalid data. Verify type imports work across workspaces.",
+            "parentId": "undefined",
+            "updatedAt": "2026-03-20T15:40:33.994Z"
+          },
+          {
+            "id": 4,
+            "title": "Set Up Postgres Database with Drizzle ORM",
+            "description": "Configure Postgres database connection and Drizzle ORM setup with all required tables",
+            "dependencies": [
+              3
+            ],
+            "details": "Set up Postgres database with Drizzle ORM in services/api/db. Create database schema with tables: users, spots, exercises, coaches, bookings, sessions, reviews, messages, forecasts. Configure database connection with connection pooling and environment-based configuration. Set up Drizzle migrations and schema generation.",
+            "status": "done",
+            "testStrategy": "Test database connection and migration runs cleanly on fresh database. Verify all tables are created with correct schema and relationships.",
+            "parentId": "undefined",
+            "updatedAt": "2026-03-20T15:41:58.905Z"
+          },
+          {
+            "id": 5,
+            "title": "Create Migration Scripts and Seed Data",
+            "description": "Write database migration scripts and populate initial seed data for Morocco and Bali surf spots",
+            "dependencies": [
+              4
+            ],
+            "details": "Write migration scripts for database schema updates. Create comprehensive seed data for Morocco (20 spots) and Bali (20 spots) including spot details, coordinates, break types, and initial forecast data. Configure environment variables and secrets management for database credentials and API keys. Set up development and production database configurations.",
+            "status": "done",
+            "testStrategy": "Run seed script and query test data successfully. Verify all 40 spots are inserted with correct data. Test environment variable loading and database connection in different environments.",
+            "parentId": "undefined",
+            "updatedAt": "2026-03-20T15:43:09.977Z"
+          }
+        ],
+        "complexity": 8,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Break down the monorepo setup into distinct phases: workspace initialization, tooling configuration, type system setup, database schema creation, and data seeding. Each phase should be independently testable and deployable.",
+        "updatedAt": "2026-03-20T15:43:09.977Z"
+      },
+      {
+        "id": "2",
+        "title": "Build Authentication System and User Management",
+        "description": "Implement JWT-based authentication with Apple Sign-In, Google OAuth, and email/password registration across mobile and web platforms",
+        "details": "1. Set up authentication service in services/api/auth using JWT tokens\n2. Integrate Apple Sign-In and Google OAuth providers\n3. Create auth API endpoints: POST /auth/signup, POST /auth/signin, POST /auth/refresh, GET /auth/profile\n4. Implement session management with refresh token rotation\n5. Build user profile CRUD operations\n6. Create auth middleware for protected routes\n7. Build auth screens for mobile app (Expo Router)\n8. Build auth pages for web app (Next.js App Router)\n9. Implement secure token storage (Keychain on iOS, secure storage on web)",
+        "testStrategy": "Test all OAuth flows on both platforms. Verify JWT token generation, validation, and refresh. Test session persistence across app restarts. Validate protected route access control. Test password reset flow end-to-end.",
+        "priority": "high",
+        "dependencies": [
+          "1"
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up JWT Authentication Service and OAuth Providers",
+            "description": "Create the core authentication service with JWT token handling and integrate Apple Sign-In and Google OAuth providers",
+            "dependencies": [],
+            "details": "Set up authentication service in services/api/auth using JWT tokens. Integrate Apple Sign-In and Google OAuth providers with proper configuration. Implement JWT token generation, validation, and signing with secure secret management. Configure OAuth client credentials and callback URLs for both Apple and Google providers.",
+            "status": "pending",
+            "testStrategy": "Test JWT token generation and validation. Verify Apple Sign-In and Google OAuth flows work correctly. Test token expiration and invalid token handling.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Create Authentication API Endpoints",
+            "description": "Build all authentication-related API endpoints including signup, signin, refresh, and profile management",
+            "dependencies": [
+              1
+            ],
+            "details": "Create auth API endpoints: POST /auth/signup for email/password registration, POST /auth/signin for login, POST /auth/refresh for token refresh, GET /auth/profile for user profile retrieval. Implement proper request validation, error handling, and response formatting. Add rate limiting and security headers.",
+            "status": "pending",
+            "testStrategy": "Test all API endpoints with valid and invalid inputs. Verify proper HTTP status codes and error messages. Test rate limiting functionality.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Implement Session Management and Auth Middleware",
+            "description": "Build session management with refresh token rotation and create middleware for protecting routes",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement session management with refresh token rotation for enhanced security. Create auth middleware for protected routes that validates JWT tokens and handles unauthorized access. Implement automatic token refresh logic and session cleanup for expired tokens. Add role-based access control if needed.",
+            "status": "pending",
+            "testStrategy": "Test refresh token rotation and session persistence. Verify middleware correctly protects routes and handles unauthorized access. Test session cleanup and token expiration scenarios.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Build Mobile Authentication Screens",
+            "description": "Create authentication screens for the mobile app using Expo Router with secure token storage",
+            "dependencies": [
+              3
+            ],
+            "details": "Build auth screens for mobile app using Expo Router: login screen, signup screen, forgot password screen, and profile screen. Implement secure token storage using Keychain on iOS and encrypted storage on Android. Add biometric authentication support where available. Implement proper navigation flow and loading states.",
+            "status": "pending",
+            "testStrategy": "Test all auth screens on both iOS and Android. Verify secure token storage and biometric authentication. Test navigation flow and error handling in mobile app.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Build Web Authentication Pages and Complete Integration",
+            "description": "Create authentication pages for the web app using Next.js App Router and finalize the complete authentication system",
+            "dependencies": [
+              4
+            ],
+            "details": "Build auth pages for web app using Next.js App Router: login page, signup page, forgot password page, and profile page. Implement secure token storage for web using httpOnly cookies or secure localStorage. Add user profile CRUD operations for both mobile and web. Complete end-to-end testing of the entire authentication system across platforms.",
+            "status": "pending",
+            "testStrategy": "Test all web auth pages and secure token storage. Verify complete authentication flow works across mobile and web platforms. Test user profile operations and cross-platform session consistency.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 9,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Separate authentication concerns into: core JWT service setup, OAuth provider integration, API endpoint creation, session management implementation, and cross-platform UI development. Focus on security best practices and platform-specific token storage."
+      },
+      {
+        "id": "3",
+        "title": "Implement Forecast Data Integration and Normalization Engine",
+        "description": "Build the core forecast system that aggregates data from NOAA/NDBC, Open-Meteo, and Copernicus Marine Service, normalizes it, and generates surf quality ratings",
+        "details": "1. Create API clients for forecast sources in services/api/integrations/:\n   - NOAA/NDBC buoy data client with error handling and rate limiting\n   - Open-Meteo weather API client\n   - Copernicus Marine Service client with authentication\n2. Implement forecast normalization logic in packages/core/forecast:\n   - Merge multi-source data into unified Forecast schema\n   - Handle missing data and source priority (buoy > model data)\n   - Implement surf quality rating algorithm (1-5 stars) based on swell height/period/direction, wind, tide\n3. Build forecast API endpoints: GET /spots/:id/forecast, GET /spots/:id/forecast/extended\n4. Create background job for forecast polling (hourly swell, 3-hourly wind)\n5. Implement caching strategy with Redis for performance",
+        "testStrategy": "Integration tests against live APIs with mocked fallbacks. Unit tests for normalization logic with fixture data. Test rating algorithm with known-good conditions (e.g., 'perfect day at Anchor Point' = 5 stars). Verify background job runs without error and updates database.",
+        "priority": "high",
+        "dependencies": [
+          "1"
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create API clients for external forecast data sources",
+            "description": "Build API clients for NOAA/NDBC, Open-Meteo, and Copernicus Marine Service with proper error handling and authentication",
+            "dependencies": [],
+            "details": "Implement three separate API clients in services/api/integrations/: NOAA/NDBC buoy data client with rate limiting and retry logic, Open-Meteo weather API client for wind/weather data, and Copernicus Marine Service client with OAuth authentication. Include proper error handling, timeout management, and logging for each client.",
+            "status": "pending",
+            "testStrategy": "Unit tests with mocked API responses, integration tests against live APIs with fallback scenarios, and error handling validation",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Implement forecast data normalization and merging logic",
+            "description": "Build the core normalization engine that merges multi-source forecast data into unified schema with data priority handling",
+            "dependencies": [
+              1
+            ],
+            "details": "Create normalization logic in packages/core/forecast to merge data from multiple sources into unified Forecast schema. Implement data priority system (buoy data > model data), handle missing data gracefully, and ensure consistent timestamp alignment across sources. Include data validation and quality checks.",
+            "status": "pending",
+            "testStrategy": "Unit tests with fixture data from each source, validation tests for edge cases with missing data, and integration tests with live data",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Develop surf quality rating algorithm",
+            "description": "Create the 1-5 star surf quality rating algorithm based on swell height, period, direction, wind conditions, and tide data",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement surf quality rating algorithm that considers swell height/period/direction, wind speed/direction, tide conditions, and spot-specific factors. Create configurable weighting system for different conditions and validate against known surf conditions. Include rating explanation logic for user transparency.",
+            "status": "pending",
+            "testStrategy": "Test algorithm with known-good conditions (e.g., 'perfect day at Anchor Point' = 5 stars), validate edge cases, and compare ratings with expert assessments",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Build forecast API endpoints with caching",
+            "description": "Create REST API endpoints for forecast data retrieval with Redis caching strategy for optimal performance",
+            "dependencies": [
+              3
+            ],
+            "details": "Implement GET /spots/:id/forecast and GET /spots/:id/forecast/extended endpoints with proper error handling, input validation, and response formatting. Integrate Redis caching with appropriate TTL values, cache invalidation strategies, and cache warming. Include rate limiting and API documentation.",
+            "status": "pending",
+            "testStrategy": "API endpoint testing with various spot IDs, cache performance validation, rate limiting verification, and load testing",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Implement background forecast polling job system",
+            "description": "Create scheduled background jobs for automated forecast data polling and database updates with proper error handling",
+            "dependencies": [
+              4
+            ],
+            "details": "Build background job system for hourly swell data polling and 3-hourly wind data updates. Implement job scheduling, error recovery, dead letter queues, and monitoring. Include database update logic, conflict resolution, and job status tracking. Ensure jobs run reliably without blocking the main application.",
+            "status": "pending",
+            "testStrategy": "Verify background jobs run on schedule without errors, test error recovery and retry logic, validate database updates, and monitor job performance",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 9,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Structure around data pipeline stages: external API client development, data normalization engine, surf quality algorithm, API endpoint creation, and background job system. Each stage should handle errors gracefully and support monitoring."
+      },
+      {
+        "id": "4",
+        "title": "Build Forecast Display UI and Spot Management",
+        "description": "Create shared UI components for forecast display and implement spot directory with search, favorites, and detailed forecast views across mobile and web",
+        "details": "1. Build shared UI components in packages/ui:\n   - ForecastCard component showing current conditions, star rating, swell/wind/tide summary\n   - SpotCard component for spot listings with distance, current conditions preview\n   - StarRating, ConditionsBadge, WeatherIcon components\n2. Implement spot management in packages/core/spots:\n   - Spot search by name, region, proximity\n   - Distance calculation from user location\n   - Favorites management\n3. Build spot API endpoints: GET /spots, GET /spots/search, POST /spots/:id/favorite\n4. Create Forecast tab in mobile app with spot list, search, and detailed forecast views\n5. Create /forecast routes in web app with responsive design\n6. Implement GPS-based spot suggestions and location permissions\n7. Add offline support for favorited spots' forecast data",
+        "testStrategy": "Component tests for all UI components with React Testing Library. Test spot search with various filters. Verify GPS-based sorting works correctly. End-to-end test: user opens app → sees nearby spots → taps spot → views detailed forecast. Test offline functionality with cached data.",
+        "priority": "high",
+        "dependencies": [
+          "2",
+          "3"
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Build Shared UI Components for Forecast Display",
+            "description": "Create reusable UI components in packages/ui for displaying forecast data and spot information across mobile and web platforms",
+            "dependencies": [],
+            "details": "Implement ForecastCard component showing current conditions, star rating, swell/wind/tide summary. Create SpotCard component for spot listings with distance and current conditions preview. Build supporting components: StarRating, ConditionsBadge, and WeatherIcon. Ensure components are responsive and follow design system.",
+            "status": "pending",
+            "testStrategy": "Component tests with React Testing Library for all UI components. Test responsive behavior across different screen sizes. Verify proper prop handling and accessibility compliance.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Implement Core Spot Management System",
+            "description": "Build spot search, distance calculation, and favorites management functionality in packages/core/spots",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement spot search by name, region, and proximity. Add distance calculation from user location using GPS coordinates. Create favorites management system with local storage persistence. Include spot data validation and error handling for location services.",
+            "status": "pending",
+            "testStrategy": "Unit tests for search algorithms with various filter combinations. Test distance calculation accuracy with known coordinates. Verify favorites persistence across app sessions.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Build Spot API Endpoints",
+            "description": "Create backend API endpoints for spot data retrieval, search functionality, and favorites management",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement GET /spots endpoint for retrieving spot listings with pagination. Create GET /spots/search with query parameters for name, region, and proximity filtering. Build POST /spots/:id/favorite endpoint for managing user favorites. Include proper authentication and rate limiting.",
+            "status": "pending",
+            "testStrategy": "Integration tests for all API endpoints with various query parameters. Test authentication and authorization flows. Verify rate limiting and error handling for invalid requests.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Create Mobile App Forecast Tab and Web Routes",
+            "description": "Implement forecast display screens in mobile app and web application with spot listings and detailed forecast views",
+            "dependencies": [
+              1,
+              3
+            ],
+            "details": "Build Forecast tab in mobile app with spot list view, search interface, and detailed forecast screens. Create /forecast routes in web app with responsive design. Implement navigation between spot list and detailed views. Add loading states and error handling for API calls.",
+            "status": "pending",
+            "testStrategy": "End-to-end tests for navigation flow from spot list to detailed forecast. Test responsive design across different devices. Verify loading states and error handling scenarios.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Implement GPS-based Features and Offline Support",
+            "description": "Add GPS-based spot suggestions, location permissions handling, and offline support for favorited spots' forecast data",
+            "dependencies": [
+              2,
+              4
+            ],
+            "details": "Implement GPS-based spot suggestions with location permissions handling. Add offline support for favorited spots' forecast data using local caching. Include background sync when connection is restored. Handle location permission denied scenarios gracefully.",
+            "status": "pending",
+            "testStrategy": "Test GPS-based sorting accuracy with mock location data. Verify offline functionality by testing in airplane mode. Test location permission flows on both iOS and Android platforms.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 7,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Organize by component layers: shared UI component library, core spot management logic, backend API development, mobile app integration, and web app integration with GPS and offline features."
+      },
+      {
+        "id": "5",
+        "title": "Implement Webcam Integration and Live Stream Viewer",
+        "description": "Build webcam feed aggregation, live stream viewer with forecast overlay, and time-lapse functionality for visual condition confirmation",
+        "details": "1. Research and catalog public webcam feeds for Morocco (Taghazout, Essaouira) and Bali (Uluwatu, Canggu, Padang Padang)\n2. Build webcam metadata service in services/api/routes/webcams:\n   - Store webcam URLs, availability status, last-seen timestamps\n   - Implement stream health checking and fallback handling\n   - Create snapshot capture system for time-lapse (every 5 minutes)\n3. Build webcam viewer components:\n   - Live stream player supporting HLS/DASH with fallback to still images\n   - Forecast data overlay (semi-transparent, toggleable)\n   - Time-lapse viewer with scrubber for last 4 hours\n4. Create Webcams tab in mobile app and /webcams routes in web app\n5. Implement bandwidth optimization (HD on WiFi, lower quality on cellular)\n6. Add webcam integration to spot detail views",
+        "testStrategy": "Test stream loading and playback on both mobile and web. Verify forecast overlay displays correctly and is toggleable. Test time-lapse assembly and playback. Verify graceful handling of offline webcams. Test bandwidth adaptation based on connection type.",
+        "priority": "medium",
+        "dependencies": [
+          "4"
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Research and catalog public webcam feeds for Morocco and Bali",
+            "description": "Research and compile a comprehensive list of public webcam feeds for surf spots in Morocco (Taghazout, Essaouira) and Bali (Uluwatu, Canggu, Padang Padang)",
+            "dependencies": [],
+            "details": "Identify reliable public webcam sources for each surf spot, document their URLs, stream formats (HLS/DASH/MJPEG), update frequencies, and availability patterns. Create initial webcam metadata including coordinates, viewing angles, and quality ratings.",
+            "status": "pending",
+            "testStrategy": "Verify each webcam URL is accessible and streams are playable. Test different stream formats and document fallback options for each source.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Build webcam metadata service and health monitoring system",
+            "description": "Implement the backend webcam metadata service with stream health checking, availability tracking, and snapshot capture functionality",
+            "dependencies": [
+              1
+            ],
+            "details": "Create services/api/routes/webcams with endpoints for webcam CRUD operations. Implement stream health checking with periodic availability tests, last-seen timestamp tracking, and automatic fallback handling. Build snapshot capture system that saves images every 5 minutes for time-lapse generation.",
+            "status": "pending",
+            "testStrategy": "Test health checking logic with both online and offline webcam sources. Verify snapshot capture runs on schedule and handles stream failures gracefully. Test API endpoints for webcam metadata management.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Develop live stream player with forecast overlay functionality",
+            "description": "Build the core webcam viewer component with live stream playback, forecast data overlay, and adaptive streaming support",
+            "dependencies": [
+              2
+            ],
+            "details": "Create live stream player supporting HLS/DASH formats with fallback to still images when streams are unavailable. Implement semi-transparent, toggleable forecast data overlay showing wave height, wind conditions, and surf rating. Add bandwidth optimization with HD quality on WiFi and lower quality on cellular connections.",
+            "status": "pending",
+            "testStrategy": "Test stream playback across different formats and connection types. Verify forecast overlay displays correctly and toggles properly. Test bandwidth adaptation switches between quality levels based on connection type.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Implement time-lapse viewer with scrubber controls",
+            "description": "Build time-lapse functionality that assembles snapshots into playable time-lapse videos with interactive scrubber controls",
+            "dependencies": [
+              2
+            ],
+            "details": "Create time-lapse viewer component that assembles captured snapshots into smooth time-lapse playback covering the last 4 hours. Implement scrubber control for seeking through time-lapse footage, with timestamp display and smooth playback controls. Add loading states and error handling for missing snapshots.",
+            "status": "pending",
+            "testStrategy": "Test time-lapse assembly with various snapshot intervals and missing frames. Verify scrubber controls work smoothly and timestamps are accurate. Test playback performance with 4-hour time-lapse sequences.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Integrate webcam viewer into mobile app and web interface",
+            "description": "Create Webcams tab in mobile app and /webcams routes in web app, plus integrate webcam views into spot detail pages",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Build Webcams tab in mobile app using Expo Router and /webcams routes in Next.js web app. Create responsive webcam grid layout showing live feeds and time-lapse options. Integrate webcam viewer components into existing spot detail views with seamless navigation between forecast data and live visual confirmation.",
+            "status": "pending",
+            "testStrategy": "Test webcam tab navigation and grid layout on both mobile and web platforms. Verify integration with spot detail views works seamlessly. Test responsive design across different screen sizes and orientations.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 8,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Break into research and infrastructure phases: webcam source research, backend metadata service, live streaming components, time-lapse functionality, and cross-platform integration with bandwidth optimization."
+      },
+      {
+        "id": "6",
+        "title": "Build Physical Therapy Exercise Library and Routine Engine",
+        "description": "Create comprehensive surf-specific exercise library with video demonstrations and intelligent routine suggestion system linked to surf sessions",
+        "details": "1. Curate 25-30 surf-specific exercises targeting:\n   - Shoulders (paddling strength, rotator cuff)\n   - Hips (mobility, pop-up mechanics)\n   - Lower back (spinal extension, core stability)\n   - Ankles (balance, proprioception)\n   - Neck (paddling position)\n2. Create exercise content management:\n   - Video demonstrations (record or license)\n   - Exercise metadata: body areas, difficulty, duration, sets/reps\n   - Surf-relevance tags (paddling, pop-up, bottom turn)\n3. Build PT API in services/api/routes/pt:\n   - Exercise CRUD and filtering\n   - Routine templates (warm-up, cool-down, recovery, injury-specific)\n   - Progress tracking per user\n4. Implement routine suggestion engine in packages/core/pt:\n   - Session-to-recovery logic (session duration/intensity → routine recommendation)\n   - Personalization based on injury history and preferences\n5. Build PT UI components: ExerciseCard, TimerView, ProgressChart\n6. Create Recovery tab with exercise library, guided routines, and progress tracking",
+        "testStrategy": "Content review by surf PT professional. Test routine suggestion algorithm with various session profiles. Component tests for exercise player and timer functionality. End-to-end test: complete guided routine with timers and transitions. Test progress tracking visualization with fixture data.",
+        "priority": "medium",
+        "dependencies": [
+          "2"
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Curate and Structure Surf-Specific Exercise Library",
+            "description": "Research, curate, and organize 25-30 surf-specific exercises targeting key muscle groups and movement patterns essential for surfing performance and injury prevention.",
+            "dependencies": [],
+            "details": "Create comprehensive exercise database targeting shoulders (paddling strength, rotator cuff), hips (mobility, pop-up mechanics), lower back (spinal extension, core stability), ankles (balance, proprioception), and neck (paddling position). Define exercise metadata including body areas, difficulty levels, duration, sets/reps, and surf-relevance tags (paddling, pop-up, bottom turn). Research and validate exercises with surf-specific movement patterns.",
+            "status": "pending",
+            "testStrategy": "Content review by surf physical therapy professional to validate exercise selection and surf-specific relevance",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Create Exercise Content Management System",
+            "description": "Develop content management infrastructure for exercise videos, metadata, and categorization with proper storage and retrieval mechanisms.",
+            "dependencies": [
+              1
+            ],
+            "details": "Set up video storage solution (record or license exercise demonstrations). Create database schema for exercise metadata including body areas, difficulty, duration, sets/reps, and surf-relevance tags. Implement content upload and management workflows. Ensure video quality standards and consistent formatting across all exercise demonstrations. Create tagging system for easy filtering and search.",
+            "status": "pending",
+            "testStrategy": "Test video upload, storage, and retrieval functionality. Validate metadata accuracy and search/filter capabilities",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Build Physical Therapy API Backend",
+            "description": "Implement comprehensive PT API in services/api/routes/pt with exercise CRUD operations, routine templates, and user progress tracking.",
+            "dependencies": [
+              2
+            ],
+            "details": "Create REST API endpoints for exercise CRUD operations and filtering. Implement routine template system for warm-up, cool-down, recovery, and injury-specific routines. Build user progress tracking with session history and performance metrics. Add authentication and authorization for user-specific data. Implement data validation and error handling for all PT-related operations.",
+            "status": "pending",
+            "testStrategy": "Unit tests for all API endpoints. Integration tests for routine template logic and progress tracking functionality",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Implement Intelligent Routine Suggestion Engine",
+            "description": "Build smart recommendation system in packages/core/pt that suggests personalized recovery routines based on surf session data and user preferences.",
+            "dependencies": [
+              3
+            ],
+            "details": "Develop session-to-recovery logic that analyzes session duration and intensity to recommend appropriate routines. Implement personalization algorithm based on injury history, user preferences, and past routine performance. Create routine scoring system that considers user feedback and completion rates. Build fallback mechanisms for users with limited history data.",
+            "status": "pending",
+            "testStrategy": "Test routine suggestion algorithm with various session profiles and user scenarios. Validate personalization accuracy with fixture data",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Build PT UI Components and Recovery Tab Interface",
+            "description": "Create user interface components and complete Recovery tab with exercise library, guided routines, timer functionality, and progress visualization.",
+            "dependencies": [
+              4
+            ],
+            "details": "Develop ExerciseCard component with video player and exercise details. Build TimerView with countdown, rest periods, and exercise transitions. Create ProgressChart component for tracking user improvement over time. Implement Recovery tab with exercise library browsing, guided routine player, and progress dashboard. Add responsive design for mobile and web platforms with intuitive navigation and accessibility features.",
+            "status": "pending",
+            "testStrategy": "Component tests for ExerciseCard, TimerView, and ProgressChart. End-to-end test for complete guided routine with timers and transitions. Test progress tracking visualization with fixture data",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 7,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Structure around content and intelligence layers: exercise content curation, content management system, backend API development, recommendation algorithm, and user interface with progress tracking."
+      },
+      {
+        "id": "7",
+        "title": "Develop Coach Marketplace with Profiles and Search",
+        "description": "Build two-sided marketplace for coach discovery with profiles, search/filtering, and verification system for Morocco and Bali regions",
+        "details": "1. Build coach registration and profile system:\n   - Coach signup flow with profile creation\n   - Profile fields: bio, certifications, specialties, languages, hourly rate, photos/videos\n   - Admin verification workflow for initial coach approval\n   - Certification badge system (ISA, local federations)\n2. Implement coach search and discovery:\n   - Search API with filters: location, specialty, availability, rating, price, language\n   - Proximity-based sorting and availability preview\n   - Coach profile pages with media gallery and reviews\n3. Build coach management dashboard:\n   - Profile editing, availability calendar, booking management\n   - Analytics: booking rate, earnings, review summary\n4. Create Coaches tab in mobile app and /coaches routes in web app\n5. Build CoachCard component and coach profile UI\n6. Implement coach onboarding flow and verification process\n7. Recruit initial coach cohort: 10 in Morocco (Taghazout area), 10 in Bali",
+        "testStrategy": "Test coach registration and profile creation flow. Verify search functionality with various filter combinations. Test admin verification workflow. Manual verification of coach profiles and content quality. Test coach dashboard functionality and analytics display.",
+        "priority": "medium",
+        "dependencies": [
+          "2"
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Build Coach Registration and Profile System",
+            "description": "Implement complete coach signup flow with profile creation, including bio, certifications, specialties, languages, hourly rate, and media uploads",
+            "dependencies": [],
+            "details": "Create coach registration API endpoints, profile schema with fields for bio, certifications, specialties, languages, hourly rate, photos/videos. Build signup forms for web and mobile with validation. Implement file upload for profile media with image compression and video processing.",
+            "status": "pending",
+            "testStrategy": "Test coach registration flow end-to-end. Validate profile field requirements and media upload functionality. Test form validation and error handling.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Implement Admin Verification Workflow and Badge System",
+            "description": "Build admin dashboard for coach verification with approval workflow and certification badge system for ISA and local federations",
+            "dependencies": [
+              1
+            ],
+            "details": "Create admin interface for reviewing coach applications. Implement verification status tracking (pending, approved, rejected). Build certification badge system with ISA and local federation badges. Add email notifications for verification status updates.",
+            "status": "pending",
+            "testStrategy": "Test admin verification workflow with different approval scenarios. Verify badge assignment and display. Test notification system for status changes.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Build Coach Search and Discovery API",
+            "description": "Implement search API with comprehensive filtering by location, specialty, availability, rating, price, and language with proximity-based sorting",
+            "dependencies": [
+              1
+            ],
+            "details": "Create search endpoints with filters for location (Morocco/Bali), specialty, availability, rating, price range, language. Implement proximity-based sorting using geolocation. Add availability preview functionality and pagination for search results.",
+            "status": "pending",
+            "testStrategy": "Test search API with various filter combinations. Verify proximity sorting accuracy. Test availability preview and pagination functionality.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Create Coach Profile Pages and Management Dashboard",
+            "description": "Build public coach profile pages with media gallery and reviews, plus private dashboard for profile editing, availability, and analytics",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create public coach profile pages with media gallery, reviews display, and booking CTA. Build coach dashboard with profile editing, availability calendar management, booking overview, and analytics (booking rate, earnings, review summary).",
+            "status": "pending",
+            "testStrategy": "Test coach profile page rendering and media display. Verify dashboard functionality for profile editing and analytics. Test availability calendar integration.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Implement Coach UI Components and Mobile/Web Integration",
+            "description": "Build CoachCard component, Coaches tab in mobile app, and /coaches routes in web app with responsive design",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Create reusable CoachCard component for coach listings. Implement Coaches tab in mobile app using Expo Router. Build /coaches routes in Next.js web app. Ensure responsive design across devices and implement coach onboarding flow UI.",
+            "status": "pending",
+            "testStrategy": "Test CoachCard component rendering across different screen sizes. Verify navigation and routing in both mobile and web apps. Test coach onboarding flow UI.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 6,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Organize by marketplace components: coach registration and profiles, admin verification system, search and discovery API, profile management dashboard, and cross-platform UI integration."
+      },
+      {
+        "id": "8",
+        "title": "Implement Booking System with Stripe Connect Integration",
+        "description": "Build end-to-end booking system with instant booking, Stripe Connect payments, and in-app messaging between surfers and coaches",
+        "details": "1. Set up Stripe Connect for marketplace payments:\n   - Coach onboarding to Stripe with KYC verification\n   - Split payment configuration (85% coach, 15% platform fee)\n   - Refund handling for cancellations\n2. Build booking system in services/api/routes/bookings:\n   - Availability management and real-time booking\n   - Session types: 1-on-1, group, video analysis\n   - 24-hour free cancellation policy\n   - Timezone-aware scheduling\n3. Implement in-app messaging:\n   - Real-time messaging between surfer and coach\n   - Media sharing for wave photos/video clips\n   - Push notifications for new messages\n4. Build booking flow UI:\n   - Coach availability calendar\n   - Session type selection and payment\n   - Booking confirmation and calendar integration\n5. Create messaging interface with chat threads\n6. Implement booking management for both users and coaches",
+        "testStrategy": "End-to-end booking flow with Stripe test mode. Test payment splits and refund processing. Verify real-time messaging with push notifications. Test concurrent booking scenarios and availability conflicts. Validate timezone handling across different regions.",
+        "priority": "medium",
+        "dependencies": [
+          "7"
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Stripe Connect for marketplace payments",
+            "description": "Implement Stripe Connect integration for coach onboarding, payment splits, and refund handling",
+            "dependencies": [],
+            "details": "Create Stripe Connect account setup flow for coaches with KYC verification. Implement 85% coach / 15% platform fee split configuration. Build refund handling system for booking cancellations. Set up webhook handlers for payment events and account status updates.",
+            "status": "pending",
+            "testStrategy": "Test coach onboarding flow with Stripe test accounts. Verify payment splits are correctly calculated and distributed. Test refund processing for various cancellation scenarios.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Build booking system API and availability management",
+            "description": "Create booking endpoints with availability management, session types, and timezone-aware scheduling",
+            "dependencies": [
+              1
+            ],
+            "details": "Build booking API routes in services/api/routes/bookings with CRUD operations. Implement availability management system with real-time booking conflict prevention. Support session types: 1-on-1, group, video analysis. Implement 24-hour free cancellation policy and timezone-aware scheduling logic.",
+            "status": "pending",
+            "testStrategy": "Test concurrent booking scenarios to prevent double-booking. Verify timezone handling across different regions. Test cancellation policy enforcement and availability updates.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Implement real-time in-app messaging system",
+            "description": "Build messaging system with real-time communication, media sharing, and push notifications",
+            "dependencies": [],
+            "details": "Create real-time messaging infrastructure using WebSocket connections. Implement chat threads between surfers and coaches with message persistence. Add media sharing capability for wave photos and video clips. Integrate push notifications for new messages with proper badge management.",
+            "status": "pending",
+            "testStrategy": "Test real-time message delivery and synchronization. Verify media upload and sharing functionality. Test push notification delivery and badge count updates across platforms.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Build booking flow UI components",
+            "description": "Create user interface for booking flow including calendar, session selection, and payment",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Build coach availability calendar component with interactive date/time selection. Create session type selection interface with pricing display. Implement payment flow integration with Stripe Elements. Build booking confirmation screens with calendar integration and booking details display.",
+            "status": "pending",
+            "testStrategy": "Test booking flow end-to-end on both mobile and web platforms. Verify calendar displays correctly across timezones. Test payment processing and confirmation flow with Stripe test cards.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Create messaging interface and booking management",
+            "description": "Build chat interface and booking management dashboard for users and coaches",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Create messaging interface with chat threads, message history, and media preview. Build booking management dashboard showing upcoming, past, and cancelled sessions. Implement booking modification and cancellation features. Create separate views for surfers and coaches with role-appropriate functionality.",
+            "status": "pending",
+            "testStrategy": "Test messaging interface usability and real-time updates. Verify booking management features work correctly for both user roles. Test booking modification and cancellation flows with proper payment handling.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 9,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Structure around payment and communication systems: Stripe Connect setup, booking system API, real-time messaging, booking flow UI, and integrated booking management with proper error handling and edge cases."
+      },
+      {
+        "id": "9",
+        "title": "Build Session Logging and Recovery Integration",
+        "description": "Create surf session logging system with GPS-based spot detection, automatic condition capture, and intelligent recovery routine suggestions",
+        "details": "1. Build session logging API and UI:\n   - Quick-log flow: spot + duration in <10 seconds\n   - Detailed log: conditions, notes, personal rating\n   - GPS-based spot auto-suggestion\n   - Auto-fill conditions from current forecast data\n2. Implement session-to-recovery trigger system:\n   - Background job to detect completed sessions\n   - Push notification 1-4 hours post-session\n   - Routine recommendation based on session intensity/duration\n3. Build personal stats dashboard:\n   - Sessions over time with calendar heatmap\n   - Spots surfed with frequency analysis\n   - Recovery consistency tracking\n   - Progress visualization\n4. Create session logging UI in mobile app and web\n5. Integrate with PT system for automatic routine suggestions\n6. Implement session sharing and social features (optional)",
+        "testStrategy": "Test GPS-based spot detection accuracy. Verify automatic condition capture from forecast data. Test session-to-recovery notification timing and routine suggestions. Validate personal stats calculations and visualizations. End-to-end test: log session → receive recovery prompt → complete routine.",
+        "priority": "medium",
+        "dependencies": [
+          "4",
+          "6"
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Build Session Logging API and Database Schema",
+            "description": "Create the backend API endpoints and database schema for surf session logging with GPS-based spot detection and automatic condition capture",
+            "dependencies": [],
+            "details": "Implement session logging API endpoints (POST /sessions, GET /sessions, PUT /sessions/:id) with database schema for sessions table including fields for spot_id, duration, conditions, notes, rating, gps_coordinates. Create GPS-based spot auto-suggestion logic and integration with forecast data for auto-filling conditions. Include validation and error handling for all endpoints.",
+            "status": "pending",
+            "testStrategy": "Unit tests for API endpoints with various input scenarios. Integration tests for GPS spot detection accuracy. Test auto-fill conditions from forecast data with mocked weather services.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Implement Session-to-Recovery Trigger System",
+            "description": "Build background job system to detect completed sessions and trigger recovery routine notifications with intelligent timing",
+            "dependencies": [
+              1
+            ],
+            "details": "Create background job service to monitor completed sessions and schedule push notifications 1-4 hours post-session. Implement routine recommendation algorithm based on session intensity and duration. Build notification service with configurable timing and user preferences. Include job queue management and error handling for failed notifications.",
+            "status": "pending",
+            "testStrategy": "Test background job execution and notification timing accuracy. Verify routine recommendation algorithm with various session profiles. Test push notification delivery across different devices and platforms.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Create Personal Stats Dashboard Backend",
+            "description": "Build API endpoints and data aggregation logic for personal surfing statistics and progress tracking",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement stats calculation endpoints (GET /stats/sessions, GET /stats/spots, GET /stats/recovery) with aggregation queries for sessions over time, spot frequency analysis, and recovery consistency tracking. Create data visualization helpers for calendar heatmap and progress charts. Include caching for performance optimization.",
+            "status": "pending",
+            "testStrategy": "Unit tests for stats calculation accuracy with fixture data. Performance tests for large datasets. Verify calendar heatmap data structure and progress visualization calculations.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Build Session Logging Mobile and Web UI",
+            "description": "Create user interfaces for session logging across mobile app and web platform with quick-log and detailed-log flows",
+            "dependencies": [
+              1
+            ],
+            "details": "Build mobile session logging screens using Expo Router with quick-log flow (spot + duration in <10 seconds) and detailed log form (conditions, notes, rating). Create corresponding web pages using Next.js App Router. Implement GPS location services, form validation, and offline capability for mobile. Include session history views and edit functionality.",
+            "status": "pending",
+            "testStrategy": "End-to-end tests for both quick-log and detailed-log flows. Test GPS functionality and offline sync. Verify form validation and error handling across platforms. Test session history and edit functionality.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Integrate Stats Dashboard UI and PT System Connection",
+            "description": "Build personal stats dashboard frontend and integrate with PT system for automatic routine suggestions based on logged sessions",
+            "dependencies": [
+              2,
+              3,
+              4
+            ],
+            "details": "Create stats dashboard components for mobile and web showing calendar heatmap, spot frequency charts, and recovery consistency tracking. Integrate with PT system API to trigger automatic routine suggestions based on session data. Implement data visualization using charts library and ensure responsive design across platforms.",
+            "status": "pending",
+            "testStrategy": "Component tests for dashboard visualizations with various data scenarios. Integration tests for PT system connection and routine suggestions. End-to-end test: log session → receive recovery prompt → view stats dashboard → complete routine.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 6,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Organize by data flow: session logging API and database, session-to-recovery trigger system, personal stats backend, mobile/web UI development, and PT system integration with analytics dashboard."
+      },
+      {
+        "id": "10",
+        "title": "Implement Reviews, Notifications, and Launch Preparation",
+        "description": "Build review system for coaches, unified push notification system, offline support, analytics integration, and prepare for App Store launch",
+        "details": "1. Build review and rating system:\n   - Post-session review prompts for coach bookings\n   - 1-5 star ratings with text reviews\n   - Coach response capability\n   - Aggregate rating calculation and display\n   - Review moderation and flagging system\n2. Implement unified push notification system:\n   - APNs for iOS, web push for browsers\n   - Notification categories: forecast alerts, PT reminders, booking updates, messages\n   - User preferences and quiet hours\n   - Badge count management\n3. Add offline support:\n   - Cache forecast data for favorited spots\n   - Offline PT exercise videos\n   - Spot metadata offline access\n   - Sync when connection restored\n4. Integrate analytics (PostHog):\n   - Event tracking for key user actions\n   - Funnel analysis for activation and retention\n   - Privacy-compliant implementation\n5. Prepare for launch:\n   - App Store submission materials\n   - Marketing landing page\n   - TestFlight beta distribution\n   - Performance optimization and testing",
+        "testStrategy": "Test review submission and display flow. Verify push notifications across all categories and platforms. Test offline functionality in airplane mode. Validate analytics event tracking and dashboard setup. Complete App Store review checklist and TestFlight distribution testing.",
+        "priority": "medium",
+        "dependencies": [
+          "8",
+          "9"
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Build Review and Rating System for Coach Bookings",
+            "description": "Implement comprehensive review system with post-session prompts, star ratings, text reviews, and coach response capabilities",
+            "dependencies": [],
+            "details": "Create review database schema and API endpoints for submitting 1-5 star ratings with text reviews. Build post-session review prompts that trigger after coach bookings. Implement coach response functionality and aggregate rating calculation. Add review moderation system with flagging capabilities for inappropriate content.",
+            "status": "pending",
+            "testStrategy": "Test review submission flow end-to-end. Verify rating calculations and coach response functionality. Test moderation and flagging system with various content types.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Implement Unified Push Notification System",
+            "description": "Build cross-platform push notification system supporting APNs for iOS and web push for browsers with user preferences",
+            "dependencies": [],
+            "details": "Set up APNs for iOS and web push notification infrastructure. Implement notification categories for forecast alerts, PT reminders, booking updates, and messages. Build user preference management system with quiet hours functionality. Add badge count management and notification scheduling system.",
+            "status": "pending",
+            "testStrategy": "Test push notifications across all platforms and categories. Verify user preference settings and quiet hours functionality. Test badge count updates and notification delivery reliability.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Add Offline Support with Data Caching",
+            "description": "Implement offline functionality for forecast data, PT videos, and spot metadata with sync capabilities",
+            "dependencies": [],
+            "details": "Build caching system for forecast data of favorited spots using local storage. Implement offline access for PT exercise videos with download management. Cache spot metadata for offline browsing. Create sync mechanism to update cached data when connection is restored.",
+            "status": "pending",
+            "testStrategy": "Test offline functionality in airplane mode. Verify cached data accessibility and sync behavior when connection restored. Test download management for PT videos and storage optimization.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Integrate PostHog Analytics with Privacy Compliance",
+            "description": "Implement comprehensive analytics tracking for user actions, funnel analysis, and retention metrics with privacy compliance",
+            "dependencies": [],
+            "details": "Set up PostHog analytics integration with event tracking for key user actions like bookings, forecast views, and app usage. Implement funnel analysis for user activation and retention tracking. Ensure privacy-compliant implementation with proper consent management and data anonymization.",
+            "status": "pending",
+            "testStrategy": "Verify event tracking accuracy and funnel analysis setup. Test privacy compliance features and consent management. Validate analytics dashboard configuration and data collection.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Prepare App Store Launch Materials and Distribution",
+            "description": "Create all necessary materials and processes for App Store submission and beta testing distribution",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "details": "Prepare App Store submission materials including screenshots, descriptions, and metadata. Build marketing landing page for app promotion. Set up TestFlight beta distribution for testing. Perform performance optimization and comprehensive testing before launch. Complete App Store review checklist and submission process.",
+            "status": "pending",
+            "testStrategy": "Complete App Store review checklist and submission requirements. Test TestFlight distribution process with beta users. Verify marketing landing page functionality and performance optimization results.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 8,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Structure around launch readiness: review system development, push notification infrastructure, offline support implementation, analytics integration, and comprehensive launch preparation with App Store submission."
+      }
+    ],
+    "metadata": {
+      "version": "1.0.0",
+      "lastModified": "2026-03-20T15:43:09.978Z",
+      "taskCount": 10,
+      "completedCount": 1,
+      "tags": [
+        "master"
+      ]
+    }
+  }
+}
