@@ -30,3 +30,12 @@ npm-debug.log*
 # Mobile
 ios/
 android/
+
+# Personal data — raw WhatsApp exports (provenance is baked into spot files instead)
+.research/julien_raw.json
+.research/julien_transcript.txt
+.research/julien_err.log
+.research/om_marine_sample.json
+
+# Local forecast cache
+.surflow/

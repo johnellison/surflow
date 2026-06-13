@@ -1,0 +1,20 @@
+{
+  "name": "@surflow/cli",
+  "version": "0.0.1",
+  "private": true,
+  "bin": {
+    "surf": "./src/index.ts"
+  },
+  "scripts": {
+    "surf": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@surflow/surf-engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "tsx": "^4",
+    "typescript": "^5.7"
+  }
+}
