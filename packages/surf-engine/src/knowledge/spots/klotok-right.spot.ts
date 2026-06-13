@@ -32,8 +32,9 @@ export const klotokRight: SurfRules = {
   swell: {
     centerBearing: 200,
     halfWidthDeg: 40,
-    idealHeight: [1.0, 2.5], // deep water holds bigger swell than the reef breaks
+    idealHeight: [1.5, 2.8], // deep water holds bigger swell than the reef breaks
     idealPeriod: [9, 18],
+    minHeightM: 1.1,
     provenance: {
       source: 'julien-whatsapp',
       quote: 'a long open face right-hander point, closer from what can be found in Morocco.',
@@ -71,6 +72,6 @@ export const klotokRight: SurfRules = {
     'Sunrise meetings (~05:45). On the biggest days it still works but becomes an advanced/gun wave.',
     "Klotok's Left is a separate spot that wants LOW tide — different access entirely.",
   ],
-  version: 1,
-  updatedAt: CAPTURED,
+  version: 2,
+  updatedAt: '2026-06-15',
 };

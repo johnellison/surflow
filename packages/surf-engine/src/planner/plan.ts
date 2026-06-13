@@ -4,6 +4,7 @@ import { DEFAULT_WEIGHTS, type ScoringWeights } from '../types/weights';
 import type { ScoredWindow } from '../types/scored-window';
 import type { DayPlan, PlannedSpotDay, SessionPlan } from '../types/session-plan';
 import { loadKnowledgeBase } from '../knowledge/index';
+import { EAST_BALI_SWELL_POINT } from '../knowledge/region';
 import { getForecast } from '../forecast/normalize';
 import { scoreWindow } from '../scoring/window';
 import { computeDaylight } from './daylight';
@@ -88,9 +89,12 @@ async function scoreSpot(
   surfer: SurferProfile,
   weights: ScoringWeights,
 ): Promise<ScoredWindow[]> {
+  const swell = rules.swellSample ?? EAST_BALI_SWELL_POINT;
   const hours = await getForecast({
     lat: rules.latitude,
     lon: rules.longitude,
+    swellLat: swell.lat,
+    swellLon: swell.lon,
     startDate: from,
     endDate: to,
   });

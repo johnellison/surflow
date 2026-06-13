@@ -29,13 +29,16 @@ export const cucukan: SurfRules = {
   swell: {
     centerBearing: 200,
     halfWidthDeg: 35,
-    idealHeight: [0.8, 1.8],
+    idealHeight: [1.5, 2.4],
     idealPeriod: [8, 16],
+    minHeightM: 1.4,
     provenance: {
-      source: 'web',
-      quote: 'Clean, fast, rippable right-hander; best head-high+. Strictly a higher-tide reef.',
-      confidence: 'medium',
-      capturedAt: CAPTURED,
+      source: 'julien-whatsapp',
+      quote:
+        'When it’s too small Cucukan only breaks further inside where the reef is shallow — needs size to break in the makeable zone. (Julien, relayed by surfer 2026-06-15)',
+      ref: 'user-relay',
+      confidence: 'high',
+      capturedAt: '2026-06-15',
     },
   },
   wind: {
@@ -61,6 +64,6 @@ export const cucukan: SurfRules = {
     "One of Julien's favourite spots — isolated, surrounded by rice fields.",
     'Surf the dawn→08:30 window on a rising tide; if it gets difficult, fall back to Kubur.',
   ],
-  version: 1,
-  updatedAt: CAPTURED,
+  version: 2,
+  updatedAt: '2026-06-15',
 };

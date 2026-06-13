@@ -29,7 +29,7 @@ export const kubur: SurfRules = {
   swell: {
     centerBearing: 200,
     halfWidthDeg: 45,
-    idealHeight: [0.6, 1.8],
+    idealHeight: [0.9, 2.2],
     idealPeriod: [7, 15],
     provenance: {
       source: 'julien-whatsapp',
@@ -62,6 +62,6 @@ export const kubur: SurfRules = {
     'Most tide- and skill-tolerant spot here — the dependable back-up (msg328).',
     'Sand bottom: safe on a wide tide range, but a noon high-tide session risks onshore wind.',
   ],
-  version: 1,
-  updatedAt: CAPTURED,
+  version: 2,
+  updatedAt: '2026-06-15',
 };

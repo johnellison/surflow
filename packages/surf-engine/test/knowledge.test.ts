@@ -37,4 +37,9 @@ describe('knowledge base', () => {
     expect(carpark.tide.minMeters).toBe(1.5);
     expect(carpark.tide.provenance.ref).toContain('msg270');
   });
+
+  it('encodes Cucukan’s reef size floor (too small → breaks inside)', () => {
+    const cucukan = kb.find((s) => s.spotSlug === 'cucukan')!;
+    expect(cucukan.swell.minHeightM).toBeGreaterThan(1);
+  });
 });

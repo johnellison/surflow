@@ -30,7 +30,7 @@ export const keramasCarpark: SurfRules = {
   swell: {
     centerBearing: 200,
     halfWidthDeg: 40,
-    idealHeight: [0.6, 1.6],
+    idealHeight: [1.0, 2.2],
     idealPeriod: [7, 16],
     provenance: {
       source: 'julien-whatsapp',
@@ -68,6 +68,6 @@ export const keramasCarpark: SurfRules = {
     'Picks up the most swell of the Keramas spots — first choice on small days.',
     'Hard floor 1.5m of tide; really wants ~1.8–2.0m+ over the shelf.',
   ],
-  version: 1,
-  updatedAt: CAPTURED,
+  version: 2,
+  updatedAt: '2026-06-15',
 };

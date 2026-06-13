@@ -8,6 +8,9 @@ const KMH_TO_KNOTS = 1 / 1.852;
 export interface ForecastQuery {
   lat: number;
   lon: number;
+  /** Deep-water swell sample point (defaults to the spot). See knowledge/region.ts. */
+  swellLat?: number;
+  swellLon?: number;
   forecastDays?: number;
   startDate?: string;
   endDate?: string;
@@ -15,41 +18,58 @@ export interface ForecastQuery {
 }
 
 /**
- * Fetch marine + weather + tide for one location and merge into a single
- * hourly, fully-normalized series (metres, seconds, degrees-FROM, knots, °C).
- * The ~6 East-Bali spots share one Open-Meteo cell, so the planner calls this
- * once and slices it per spot.
+ * Fetch swell (offshore, deep water) + wind + tide (local) and merge into a
+ * single hourly, fully-normalized series (metres, seconds, degrees-FROM, knots,
+ * °C). Swell is sampled at `swellLat/swellLon` because Open-Meteo's swell height
+ * AT a shoreline cell is shoaled/damped — see knowledge/region.ts.
  */
 export async function getForecast(q: ForecastQuery): Promise<NormalizedForecastHour[]> {
-  const [marine, weather] = await Promise.all([
-    fetchMarine(q),
-    fetchWeather(q),
+  const localQ = {
+    lat: q.lat,
+    lon: q.lon,
+    forecastDays: q.forecastDays,
+    startDate: q.startDate,
+    endDate: q.endDate,
+    timezone: q.timezone,
+  };
+  const swellQ = { ...localQ, lat: q.swellLat ?? q.lat, lon: q.swellLon ?? q.lon };
+
+  const [swellMarine, localMarine, weather] = await Promise.all([
+    fetchMarine(swellQ), // offshore swell
+    fetchMarine(localQ), // local sea level + SST
+    fetchWeather(localQ), // local wind
   ]);
 
-  const m = marine.hourly;
+  const sw = swellMarine.hourly;
+  const loc = localMarine.hourly;
+  const w = weather.hourly;
+
   const tide = await buildTideSeries({
     lat: q.lat,
     lon: q.lon,
-    times: m.time,
-    seaLevelMsl: m.sea_level_height_msl.map((v) => v ?? 0),
+    times: loc.time,
+    seaLevelMsl: loc.sea_level_height_msl.map((v) => v ?? 0),
     startDate: q.startDate,
     endDate: q.endDate,
   });
 
-  // Index weather by time so a small grid offset doesn't desync the merge.
-  const w = weather.hourly;
+  // Index offshore swell + local wind by time so grid offsets don't desync the merge.
+  const swByTime = new Map<string, number>();
+  sw.time.forEach((t, i) => swByTime.set(t, i));
   const windByTime = new Map<string, number>();
   w.time.forEach((t, i) => windByTime.set(t, i));
 
-  return m.time.map((time, i) => {
+  return loc.time.map((time, i) => {
+    const si = swByTime.get(time);
     const wi = windByTime.get(time);
-    const peak = m.swell_wave_peak_period?.[i];
-    const period = num(peak) ?? num(m.swell_wave_period[i]) ?? 0;
+    const peak = si !== undefined ? sw.swell_wave_peak_period?.[si] : undefined;
+    const period =
+      num(peak) ?? (si !== undefined ? num(sw.swell_wave_period[si]) : null) ?? 0;
     return {
       time,
-      swellHeightM: num(m.swell_wave_height[i]) ?? 0,
+      swellHeightM: si !== undefined ? num(sw.swell_wave_height[si]) ?? 0 : 0,
       swellPeriodS: period,
-      swellDirDeg: num(m.swell_wave_direction[i]) ?? 0,
+      swellDirDeg: si !== undefined ? num(sw.swell_wave_direction[si]) ?? 0 : 0,
       windKnots: round1((wi !== undefined ? num(w.wind_speed_10m[wi]) ?? 0 : 0) * KMH_TO_KNOTS),
       windGustKnots: round1((wi !== undefined ? num(w.wind_gusts_10m[wi]) ?? 0 : 0) * KMH_TO_KNOTS),
       windDirDeg: wi !== undefined ? num(w.wind_direction_10m[wi]) ?? 0 : 0,
@@ -57,7 +77,7 @@ export async function getForecast(q: ForecastQuery): Promise<NormalizedForecastH
       tideState: tide.points[i]?.state ?? 'rising',
       tideSource: tide.source,
       tideUncertaintyM: tide.uncertaintyM,
-      waterTempC: num(m.sea_surface_temperature[i]) ?? 0,
+      waterTempC: num(loc.sea_surface_temperature[i]) ?? 0,
     };
   });
 }

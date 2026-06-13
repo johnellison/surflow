@@ -30,8 +30,10 @@ export type TideRule = z.infer<typeof TideRule>;
 export const SwellWindow = z.object({
   centerBearing: z.number().min(0).max(360).describe('Swell-FROM direction the spot likes'),
   halfWidthDeg: z.number().describe('Window = center ± this'),
-  idealHeight: z.tuple([z.number(), z.number()]).describe('[low, high] meters'),
+  idealHeight: z.tuple([z.number(), z.number()]).describe('[low, high] deep-water swell metres'),
   idealPeriod: z.tuple([z.number(), z.number()]).describe('[low, high] seconds'),
+  /** Reef size floor: below this swell only breaks far inside on dry/shallow reef (unsafe/unmakeable). */
+  minHeightM: z.number().optional(),
   provenance: Provenance,
 });
 export type SwellWindow = z.infer<typeof SwellWindow>;
@@ -64,6 +66,8 @@ export const SurfRules = z.object({
   breakType: BreakType,
   bottomType: z.enum(['reef', 'sand', 'reef-sand', 'deep-reef']),
   minSkill: SurfLevel,
+  /** Optional per-spot deep-water swell sample point; defaults to the regional point. */
+  swellSample: z.object({ lat: z.number(), lon: z.number() }).optional(),
   tide: TideRule,
   swell: SwellWindow,
   wind: WindRule,

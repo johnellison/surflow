@@ -31,8 +31,9 @@ export const keramasPeak: SurfRules = {
   swell: {
     centerBearing: 200,
     halfWidthDeg: 35,
-    idealHeight: [0.8, 1.8],
+    idealHeight: [1.3, 2.4],
     idealPeriod: [8, 16],
+    minHeightM: 1.1,
     provenance: {
       source: 'julien-whatsapp',
       quote: 'too big and furiously powerful — better to schedule elsewhere on solid days.',
@@ -74,6 +75,6 @@ export const keramasPeak: SurfRules = {
     'Advanced reef point. Best small-to-medium on a rising tide from first light (~06:00).',
     'Night surfing available under lights (Komune).',
   ],
-  version: 1,
-  updatedAt: CAPTURED,
+  version: 2,
+  updatedAt: '2026-06-15',
 };

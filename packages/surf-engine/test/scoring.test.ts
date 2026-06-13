@@ -55,6 +55,25 @@ describe('scoring — Julien ground truth replay', () => {
     expect(high.score).toBeGreaterThan(low.score);
   });
 
+  it('flags Cucukan as UNSAFE when swell is below its reef size floor', () => {
+    // Julien (relayed): too small → only breaks far inside on shallow reef.
+    const cucukan = getSpot('cucukan')!;
+    const small = scoreWindow(
+      cucukan,
+      hour({ swellHeightM: 1.0, tideMeters: 1.7, tideSource: 'worldtides', tideUncertaintyM: 0.05 }),
+      DEFAULT_SURFER,
+    );
+    expect(small.safety.safe).toBe(false);
+    expect(small.safety.reasons.join(' ')).toMatch(/floor|inside/i);
+    // Same spot with real size clears the floor.
+    const proper = scoreWindow(
+      cucukan,
+      hour({ swellHeightM: 1.8, tideMeters: 1.7, tideSource: 'worldtides', tideUncertaintyM: 0.05 }),
+      DEFAULT_SURFER,
+    );
+    expect(proper.safety.safe).toBe(true);
+  });
+
   it('cites Julien in the explanation when tide is decisive', () => {
     const w = scoreWindow(carpark, hour({ tideMeters: 2.0, swellHeightM: 1.0 }), DEFAULT_SURFER);
     expect(w.summary).toContain('Julien');

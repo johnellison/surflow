@@ -34,5 +34,6 @@ export const DEFAULT_SURFER: SurferProfile = {
   name: 'Yahya',
   level: 'advanced',
   board: { type: 'hybrid', lengthCm: 188, volumeL: 35 },
-  maxComfortableHeightM: 2.2,
+  // Wouldn't take on more than ~2.6m at this stage (deep-water swell scale).
+  maxComfortableHeightM: 2.6,
 };

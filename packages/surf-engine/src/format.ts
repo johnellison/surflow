@@ -33,6 +33,9 @@ export function formatPlan(plan: SessionPlan): string {
       `> ⚠️ Tide from Open-Meteo (degraded ~±0.25m here). Safety minimums carry an extra buffer. Add a WorldTides key for harmonic-grade tide.`,
     );
   }
+  lines.push(
+    `> 📏 Swell = deep-water height sampled offshore (matches Surfline). East Bali forecasts often over-call size — treat heights as upper bounds.`,
+  );
 
   if (plan.topPick) {
     lines.push(`\n## ⭐ Top pick — ${dayName(plan.topPick.date)} ${plan.topPick.date}`);

@@ -30,14 +30,28 @@ export function assessSafety(
     );
   }
 
-  // --- Oversized for the surfer ---
-  if (surfer.maxComfortableHeightM && hour.swellHeightM > surfer.maxComfortableHeightM * 1.3) {
+  // --- Reef size floor: too small only breaks far inside on shallow/dry reef ---
+  if (rules.swell.minHeightM && hour.swellHeightM < rules.swell.minHeightM) {
     reasons.push(
-      `Swell ${hour.swellHeightM.toFixed(1)}m is well over your ${surfer.maxComfortableHeightM}m comfort ceiling.`,
+      `Swell ${hour.swellHeightM.toFixed(1)}m is under ${rules.displayName}'s ~${rules.swell.minHeightM}m floor — it'll only break far inside on shallow reef.`,
     );
   }
+
+  // --- Oversized for the surfer (forecasts here often over-call, so warn before excluding) ---
+  if (surfer.maxComfortableHeightM) {
+    const ceil = surfer.maxComfortableHeightM;
+    if (hour.swellHeightM > ceil + 0.4) {
+      reasons.push(
+        `Swell ${hour.swellHeightM.toFixed(1)}m is over your ${ceil}m ceiling — sit this one out.`,
+      );
+    } else if (hour.swellHeightM > ceil) {
+      warnings.push(
+        `Swell ${hour.swellHeightM.toFixed(1)}m is at the top of your ${ceil}m range (forecasts here often over-call size).`,
+      );
+    }
+  }
   const bigDanger = rules.hazards.find((h) => h.kind === 'big-swell-dangerous');
-  if (bigDanger && surfer.maxComfortableHeightM && hour.swellHeightM > surfer.maxComfortableHeightM) {
+  if (bigDanger && surfer.maxComfortableHeightM && hour.swellHeightM > surfer.maxComfortableHeightM - 0.3) {
     warnings.push(`Big-swell hazard: ${bigDanger.note}`);
   }
 

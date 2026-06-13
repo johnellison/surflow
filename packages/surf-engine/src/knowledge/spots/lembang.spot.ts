@@ -29,7 +29,7 @@ export const lembang: SurfRules = {
   swell: {
     centerBearing: 200,
     halfWidthDeg: 45,
-    idealHeight: [0.6, 1.6],
+    idealHeight: [0.9, 2.0],
     idealPeriod: [7, 15],
     provenance: {
       source: 'julien-whatsapp',
@@ -62,6 +62,6 @@ export const lembang: SurfRules = {
     'Beach break for smaller swell and lower/dropping tide — the "later in the morning" option once the tide has run off.',
     'A safe Ketewel alternative when Klotok is too big on a high tide (msg336).',
   ],
-  version: 1,
-  updatedAt: CAPTURED,
+  version: 2,
+  updatedAt: '2026-06-15',
 };
