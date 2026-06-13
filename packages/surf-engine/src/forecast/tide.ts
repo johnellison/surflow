@@ -61,7 +61,7 @@ export async function buildTideSeries(args: {
   startDate?: string;
   endDate?: string;
 }): Promise<TideSeries> {
-  const key = process.env.WORLDTIDES_API_KEY;
+  const key = process.env.WORLDTIDES_API_KEY ?? process.env.WORLDTIDE_API_KEY;
   if (key) {
     try {
       return await worldTidesSeries({ ...args, key });
@@ -101,20 +101,25 @@ async function worldTidesSeries(args: {
   startDate?: string;
   endDate?: string;
 }): Promise<TideSeries> {
-  const start = args.startDate ?? args.times[0]?.slice(0, 10);
-  const days = Math.max(1, Math.ceil(args.times.length / 24));
+  // Open-Meteo `times` are local (Asia/Makassar, UTC+8) with no offset suffix;
+  // WorldTides works in Unix epoch / UTC. Align everything by epoch seconds.
+  const LOCAL_OFFSET = '+08:00';
+  const epochOf = (t: string) => Math.floor(Date.parse(`${t}${LOCAL_OFFSET}`) / 1000);
+  const startEpoch = epochOf(args.times[0]);
+  const length = (args.times.length + 1) * 3600;
+
   const params = new URLSearchParams({
-    heights: '',
     lat: args.lat.toFixed(4),
     lon: args.lon.toFixed(4),
-    start: `${start}T00:00:00`,
-    length: String(days * 24 * 3600),
+    start: String(startEpoch),
+    length: String(length),
     step: '3600',
     datum: 'LAT', // lowest astronomical tide — closest to local surf-table "metres of tide"
     key: args.key,
   });
-  const url = `https://www.worldtides.info/api/v3?${params.toString()}`;
-  const cacheKey = `worldtides_${args.lat.toFixed(2)}_${args.lon.toFixed(2)}_${start}_${days}`;
+  // `heights` is a bare flag, not a key=value pair.
+  const url = `https://www.worldtides.info/api/v3?heights&${params.toString()}`;
+  const cacheKey = `worldtides_${args.lat.toFixed(2)}_${args.lon.toFixed(2)}_${startEpoch}_${args.times.length}`;
   const ttl = 12 * 60 * 60 * 1000;
 
   let raw = await getCached<unknown>(cacheKey, ttl);
@@ -128,13 +133,15 @@ async function worldTidesSeries(args: {
   // WorldTides 'LAT' datum aligns with the local table; apply a calibration only
   // if we have fitted worldtides samples, otherwise use heights natively.
   const fit = calibrateSource('worldtides');
-  const byHour = new Map<string, number>();
+  const byDt = new Map<number, number>();
   for (const h of heights) {
-    const localHour = h.date.slice(0, 13); // YYYY-MM-DDTHH
     const v = fit ? applyAffine(h.height, fit) : h.height;
-    byHour.set(localHour, round2(v));
+    byDt.set(h.dt, round2(v));
   }
-  const meters = args.times.map((t) => byHour.get(t.slice(0, 13)) ?? 0);
+  const meters = args.times.map((t) => {
+    const e = epochOf(t);
+    return byDt.get(e) ?? byDt.get(e - 1800) ?? byDt.get(e + 1800) ?? 0;
+  });
   const states = deriveTideStates(meters);
   return {
     source: 'worldtides',

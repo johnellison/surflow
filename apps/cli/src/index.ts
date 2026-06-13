@@ -4,6 +4,26 @@
  * it parses args, calls the engine, and prints. The future openclaw/WhatsApp
  * wrapper is the same shape: parse → planSessions/scoreWindow → format.
  */
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+// Load the nearest .env (walk up from cwd) so WORLDTIDE(S)_API_KEY etc. are picked up.
+(function loadDotenv() {
+  let dir = process.cwd();
+  for (let i = 0; i < 6; i++) {
+    const p = resolve(dir, '.env');
+    if (existsSync(p)) {
+      try {
+        process.loadEnvFile(p);
+      } catch {
+        /* ignore malformed/empty .env */
+      }
+      return;
+    }
+    dir = resolve(dir, '..');
+  }
+})();
+
 import {
   planSessions,
   scoreWindow,

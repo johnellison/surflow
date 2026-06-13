@@ -96,6 +96,7 @@ export function bestTideSource(): { source: TideSourceName; fit: AffineFit } {
 /** Tide uncertainty (± metres) we attach to readings from a source, from its fit residual. */
 export function tideUncertaintyFor(source: TideSourceName): number {
   const fit = calibrateSource(source);
-  // Floor at 0.1m; Open-Meteo realistically ~0.25m here.
-  return fit ? Math.max(0.1, Number(fit.rmseM.toFixed(2))) : 0.3;
+  if (fit) return Math.max(0.1, Number(fit.rmseM.toFixed(2)));
+  // No fitted samples: WorldTides is harmonic (inherently ~0.1m); Open-Meteo ~0.3m.
+  return source === 'worldtides' ? 0.1 : 0.3;
 }
