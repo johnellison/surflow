@@ -82,6 +82,32 @@ export async function planSessions(opts: PlanOptions): Promise<SessionPlan> {
   };
 }
 
+/**
+ * Score every hour of one day for one spot (no daylight filter) — powers the
+ * tide-curve view. Returns time-ascending ScoredWindows for the given date.
+ */
+export async function scoreSpotDay(
+  slug: string,
+  date: string,
+  surfer: SurferProfile = DEFAULT_SURFER,
+  weights: ScoringWeights = DEFAULT_WEIGHTS,
+): Promise<ScoredWindow[]> {
+  const rules = loadKnowledgeBase().find((s) => s.spotSlug === slug);
+  if (!rules) throw new Error(`Unknown spot: ${slug}`);
+  const swell = rules.swellSample ?? EAST_BALI_SWELL_POINT;
+  const hours = await getForecast({
+    lat: rules.latitude,
+    lon: rules.longitude,
+    swellLat: swell.lat,
+    swellLon: swell.lon,
+    startDate: date,
+    endDate: date,
+  });
+  return hours
+    .filter((h) => localDate(h.time) === date)
+    .map((h) => scoreWindow(rules, h, surfer, { ...DEFAULT_WEIGHTS, ...weights }));
+}
+
 async function scoreSpot(
   rules: SurfRules,
   from: string,

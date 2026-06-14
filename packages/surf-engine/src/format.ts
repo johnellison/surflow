@@ -1,5 +1,6 @@
 import type { ScoredWindow } from './types/scored-window';
-import type { SessionPlan } from './types/session-plan';
+import type { SessionPlan, PlannedSpotDay } from './types/session-plan';
+import type { SurfRules } from './types/surf-rules';
 
 const hhmm = (iso: string) => iso.slice(11, 16);
 const dayName = (date: string) =>
@@ -71,3 +72,78 @@ export function formatPlan(plan: SessionPlan): string {
 function title(w: ScoredWindow): string {
   return w.section ? `${w.displayName} — ${w.section}` : w.displayName;
 }
+
+const spotTitle = (s: { displayName: string; section?: string }) =>
+  s.section ? `${s.displayName} — ${s.section}` : s.displayName;
+
+/**
+ * ASCII tide curve for one spot across a day. Bars scaled 0–3m, with the spot's
+ * min/max safety lines and a per-hour surfable verdict. `windows` should be the
+ * full day's scored hours (daylight + night), time-ascending.
+ */
+export function formatTideDay(rules: SurfRules, windows: ScoredWindow[], date: string): string {
+  const W = 22;
+  const MAXM = 3;
+  const lines: string[] = [];
+  const t = rules.tide;
+  const ceil = t.maxMeters !== undefined ? ` · max ${t.maxMeters}m ⚠` : '';
+  lines.push(
+    `🌊 ${spotTitle(rules)} — tide ${dayName(date)} ${date}  (min ${t.minMeters}m · sweet ${t.optimalBand[0]}–${t.optimalBand[1]}m${ceil})`,
+  );
+  for (const w of windows) {
+    const m = w.forecast.tideMeters;
+    const filled = Math.max(0, Math.min(W, Math.round((m / MAXM) * W)));
+    const bar = '█'.repeat(filled) + '·'.repeat(W - filled);
+    const inBand = m >= t.optimalBand[0] && m <= t.optimalBand[1];
+    let flag: string;
+    if (!w.safety.safe) {
+      const r = w.safety.reasons[0] ?? '';
+      flag = /ceiling|rocks|shorebreak/i.test(r) ? '⛔ too high — rock exit' : /minimum|exposed/i.test(r) ? '⛔ too low — reef' : '⛔ ' + short(r);
+    } else {
+      flag = inBand ? '✓ sweet spot' : '✓ ok';
+    }
+    lines.push(`${hhmm(w.time)}  ${m.toFixed(2)}m ▕${bar}▏ ${w.forecast.tideState.padEnd(7)} ${flag}`);
+  }
+  return lines.join('\n');
+}
+
+/** Side-by-side head-to-head of two spots on one day (best window + hourly scores). */
+export function formatCompare(a: PlannedSpotDay, b: PlannedSpotDay, date: string): string {
+  const lines: string[] = [];
+  const nameA = spotTitle(a);
+  const nameB = spotTitle(b);
+  lines.push(`⚖️  ${nameA}  vs  ${nameB} — ${dayName(date)} ${date}\n`);
+
+  const best = (s: PlannedSpotDay) => {
+    if (!s.best) return 'no safe window';
+    const f = s.best.forecast;
+    return `${hhmm(s.best.time)} (${s.best.score}) · ${f.swellHeightM.toFixed(1)}m@${f.swellPeriodS.toFixed(0)}s · wind ${f.windKnots.toFixed(0)}kn · tide ${f.tideMeters.toFixed(2)}m ${f.tideState}`;
+  };
+  lines.push(`Best  A: ${best(a)}`);
+  lines.push(`Best  B: ${best(b)}`);
+  lines.push(`\nHour   ${pad(nameA)} ${pad(nameB)}`);
+
+  const byHour = (s: PlannedSpotDay) => {
+    const map = new Map<string, ScoredWindow>();
+    for (const w of s.windows) map.set(hhmm(w.time), w);
+    return map;
+  };
+  const ha = byHour(a);
+  const hb = byHour(b);
+  const hours = [...new Set([...ha.keys(), ...hb.keys()])].sort();
+  for (const h of hours) {
+    lines.push(`${h}   ${pad(cell(ha.get(h)))} ${pad(cell(hb.get(h)))}`);
+  }
+  return lines.join('\n');
+}
+
+function cell(w?: ScoredWindow): string {
+  if (!w) return '—';
+  if (!w.safety.safe) {
+    const r = w.safety.reasons[0] ?? '';
+    return /ceiling|rocks/i.test(r) ? '⛔ high' : /minimum/i.test(r) ? '⛔ low' : '⛔';
+  }
+  return `${w.score}`;
+}
+const pad = (s: string) => s.padEnd(22).slice(0, 22);
+const short = (s: string) => (s.length > 22 ? s.slice(0, 21) + '…' : s);

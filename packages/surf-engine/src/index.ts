@@ -6,12 +6,12 @@
  */
 
 // Public API
-export { planSessions, type PlanOptions } from './planner/plan';
+export { planSessions, scoreSpotDay, type PlanOptions } from './planner/plan';
 export { scoreWindow } from './scoring/window';
 export { loadKnowledgeBase, getSpot, SPOT_SLUGS } from './knowledge/index';
 export { EAST_BALI_SWELL_POINT } from './knowledge/region';
 export { getForecast, type ForecastQuery } from './forecast/normalize';
-export { formatPlan, formatWindow } from './format';
+export { formatPlan, formatWindow, formatTideDay, formatCompare } from './format';
 
 // Calibration (for the `surf calibrate` command / tests)
 export {

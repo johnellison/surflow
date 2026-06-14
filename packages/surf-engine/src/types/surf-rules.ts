@@ -18,6 +18,8 @@ export type Provenance = z.infer<typeof Provenance>;
 /** Tide is the safety-critical input. minMeters is a hard gate (reef exposure). */
 export const TideRule = z.object({
   minMeters: z.number().describe('Below this tide height the spot is unsafe (reef too exposed)'),
+  /** Above this tide the spot is unsafe — e.g. exit forced onto rocks under heavy shorebreak. */
+  maxMeters: z.number().optional(),
   optimalBand: z.tuple([z.number(), z.number()]).describe('[low, high] meters — sweet spot'),
   directionPref: z.enum(['rising', 'falling', 'any']),
   /** On big swell, prefer the high end of the band (more water = less hollow). */

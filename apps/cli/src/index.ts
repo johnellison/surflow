@@ -26,11 +26,14 @@ import { resolve } from 'node:path';
 
 import {
   planSessions,
+  scoreSpotDay,
   scoreWindow,
   getSpot,
   loadKnowledgeBase,
   formatPlan,
   formatWindow,
+  formatTideDay,
+  formatCompare,
   calibrateSource,
   DEFAULT_SURFER,
   type NormalizedForecastHour,
@@ -97,6 +100,37 @@ async function cmdCheck(): Promise<void> {
   if (w.safety.warnings.length) process.stdout.write(`⚠️  ${w.safety.warnings.join('\n⚠️  ')}\n`);
 }
 
+async function cmdTide(): Promise<void> {
+  const slug = process.argv[3];
+  const spot = slug ? getSpot(slug) : undefined;
+  if (!spot) {
+    fail(`Unknown spot "${slug}". Try: ${loadKnowledgeBase().map((s) => s.spotSlug).join(', ')}`);
+    return;
+  }
+  const date = arg(['--date']) ?? today();
+  const all = await scoreSpotDay(slug, date);
+  const day = all.filter((w) => {
+    const h = Number(w.time.slice(11, 13));
+    return h >= 4 && h <= 19; // dawn..dusk window
+  });
+  process.stdout.write('\n' + formatTideDay(spot, day, date) + '\n');
+}
+
+async function cmdCompare(): Promise<void> {
+  const a = process.argv[3];
+  const b = process.argv[4];
+  if (!getSpot(a) || !getSpot(b)) {
+    fail(`Usage: surf compare <spot-a> <spot-b> [--date YYYY-MM-DD]\nSpots: ${loadKnowledgeBase().map((s) => s.spotSlug).join(', ')}`);
+    return;
+  }
+  const date = arg(['--date']) ?? today();
+  const plan = await planSessions({ dateRange: { from: date, to: date }, spots: [a, b] });
+  const ranked = plan.byDay[0]?.ranked ?? [];
+  const pa = ranked.find((s) => s.spotSlug === a)!;
+  const pb = ranked.find((s) => s.spotSlug === b)!;
+  process.stdout.write('\n' + formatCompare(pa, pb, date) + '\n');
+}
+
 function cmdSpots(): void {
   for (const s of loadKnowledgeBase()) {
     const t = s.section ? `${s.displayName} — ${s.section}` : s.displayName;
@@ -129,6 +163,8 @@ const USAGE = `surf — East Bali session planner
 
   surf plan [--days 7] [--from YYYY-MM-DD] [--to YYYY-MM-DD] [--spots a,b,c]
   surf check <spot-slug> --tide 1.3 [--rising|--falling] --swell 1.3 --period 6 [--wind 8 --winddir 300]
+  surf compare <spot-a> <spot-b> [--date YYYY-MM-DD]
+  surf tide <spot-slug> [--date YYYY-MM-DD]
   surf spots
   surf calibrate
 `;
@@ -138,6 +174,8 @@ async function main(): Promise<void> {
   switch (cmd) {
     case 'plan': return cmdPlan();
     case 'check': return cmdCheck();
+    case 'compare': return cmdCompare();
+    case 'tide': return cmdTide();
     case 'spots': return cmdSpots();
     case 'calibrate': return cmdCalibrate();
     default:

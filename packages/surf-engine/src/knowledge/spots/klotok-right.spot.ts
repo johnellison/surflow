@@ -17,6 +17,8 @@ export const klotokRight: SurfRules = {
     // Deep water → wide tolerance. Wants enough water for consistency; on big
     // swell + very high tide the paddle-out gets dangerous.
     minMeters: 1.2,
+    // Above this the only way out is over the rocks under heavy shorebreak — very dangerous.
+    maxMeters: 2.5,
     optimalBand: [1.4, 2.0],
     directionPref: 'any',
     moreWaterWhenBig: true,
@@ -65,6 +67,11 @@ export const klotokRight: SurfRules = {
       kind: 'reef',
       note: 'Deep-water reef point; holds big swell when the inside reefs max out.',
       provenance: { source: 'julien-whatsapp', quote: "Klotok's right will break", ref: 'msg331', confidence: 'high', capturedAt: CAPTURED },
+    },
+    {
+      kind: 'shallow-lowtide',
+      note: 'On too-high a tide the exit is forced over the rocks under heavy shorebreak — incredibly dangerous. Get out before the tide tops out.',
+      provenance: { source: 'julien-whatsapp', quote: 'high-tide rock exit under heavy shorebreak (surfer-relayed)', ref: 'user-relay', confidence: 'high', capturedAt: '2026-06-15' },
     },
   ],
   notes: [

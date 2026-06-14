@@ -74,6 +74,16 @@ describe('scoring — Julien ground truth replay', () => {
     expect(proper.safety.safe).toBe(true);
   });
 
+  it('flags Klotok as UNSAFE above its tide ceiling (rock exit under shorebreak)', () => {
+    const klotok = getSpot('klotok-right')!;
+    const wt = { tideSource: 'worldtides' as const, tideUncertaintyM: 0.05, swellHeightM: 1.7 };
+    const tooHigh = scoreWindow(klotok, hour({ ...wt, tideMeters: 2.7 }), DEFAULT_SURFER);
+    expect(tooHigh.safety.safe).toBe(false);
+    expect(tooHigh.safety.reasons.join(' ')).toMatch(/ceiling|rocks|shorebreak/i);
+    const ok = scoreWindow(klotok, hour({ ...wt, tideMeters: 1.9 }), DEFAULT_SURFER);
+    expect(ok.safety.safe).toBe(true);
+  });
+
   it('cites Julien in the explanation when tide is decisive', () => {
     const w = scoreWindow(carpark, hour({ tideMeters: 2.0, swellHeightM: 1.0 }), DEFAULT_SURFER);
     expect(w.summary).toContain('Julien');

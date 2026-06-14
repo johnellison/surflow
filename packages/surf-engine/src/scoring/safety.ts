@@ -30,6 +30,15 @@ export function assessSafety(
     );
   }
 
+  // --- Tide ceiling (e.g. dangerous rock exit under heavy shorebreak) ---
+  if (rules.tide.maxMeters !== undefined && hour.tideMeters > rules.tide.maxMeters - buffer) {
+    reasons.push(
+      `Tide ${hour.tideMeters.toFixed(2)}m is over ${rules.displayName}${
+        rules.section ? ` (${rules.section})` : ''
+      }'s ${rules.tide.maxMeters.toFixed(2)}m ceiling — exit forced onto the rocks under heavy shorebreak.`,
+    );
+  }
+
   // --- Reef size floor: too small only breaks far inside on shallow/dry reef ---
   if (rules.swell.minHeightM && hour.swellHeightM < rules.swell.minHeightM) {
     reasons.push(
