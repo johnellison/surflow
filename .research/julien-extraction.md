@@ -70,6 +70,24 @@ These pairs let us fit `tideMeters = a·sourceHeight + b` for each tide API and 
 - Two peaks: temple peak + sandbank peak in front of the warung, meet at the "boat statue." (msg 336)
 - minSkill: intermediate. Tide min ≈ 0.6m, optimal 0.7–1.6m, **direction: falling preferred**.
 
+## Klotok tide CEILING — reverse-engineered from scheduled exits (swell-dependent)
+
+Julien scheduled 90-min sessions and timed the **exit** to get out before the tide
+made the rock exit dangerous under heavy shorebreak. Tide at each Klotok session's
+start+90min exit (WorldTides at the spot), plus deep-water swell that day:
+
+| Date | Swell | Exit tide | Verdict |
+|------|-------|-----------|---------|
+| 2026-05-19 (msg71, 07:45 start) | 2.2m | **2.30m** | scheduled — fine |
+| 2026-06-04 (msg255, 08:00) | 2.0m | 1.88m | fine |
+| 2026-06-09 (msg307, 05:45) | 2.0m | 1.51m | "one of the best" |
+| 2026-06-11 (msg336) — REFUSED | **2.5m** | ~2.0m early | "very hardcore/dangerous paddle out … semi-guns 7'6-8'0" |
+
+→ Ceiling ≈ **2.5m at ≤2.2m swell**, dropping to **~2.0m at 2.5m swell** (heavier
+shorebreak). Modelled as `maxTide` (ceiling 2.5, refSwell 2.2, sensitivity 1.75,
+floor 1.6) on klotok-right. The engine reproduces both the 2.30m "fine" exit and
+the 2.0m "dangerous" refusal.
+
 ## Big-day escape options (for completeness, not in user's 6-spot list)
 - **Galak Beach** day when normal spots unmanageable. (msg 331)
 - **Sanur baby reef** (inside coral barrier S of Sanur, lefthander, boat from Mertasari): retreat spot, ⅓–½ Keramas size, for small/recovery days — but **dies in onshore wind**. (msg 287, 302)

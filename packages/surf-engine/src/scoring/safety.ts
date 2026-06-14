@@ -2,6 +2,7 @@ import type { SurfRules } from '../types/surf-rules';
 import { LEVEL_RANK, type SurferProfile } from '../types/surfer-profile';
 import type { SafetyVerdict } from '../types/scored-window';
 import type { NormalizedForecastHour } from '../forecast/types';
+import { effectiveTideCeiling } from '../tide-ceiling';
 
 /**
  * Hard safety gate. Runs before quality scoring and short-circuits ranking.
@@ -30,12 +31,13 @@ export function assessSafety(
     );
   }
 
-  // --- Tide ceiling (e.g. dangerous rock exit under heavy shorebreak) ---
-  if (rules.tide.maxMeters !== undefined && hour.tideMeters > rules.tide.maxMeters - buffer) {
+  // --- Tide ceiling (swell-dependent; dangerous rock exit under heavy shorebreak) ---
+  const ceiling = effectiveTideCeiling(rules, hour.swellHeightM);
+  if (ceiling !== undefined && hour.tideMeters > ceiling - buffer) {
     reasons.push(
-      `Tide ${hour.tideMeters.toFixed(2)}m is over ${rules.displayName}${
-        rules.section ? ` (${rules.section})` : ''
-      }'s ${rules.tide.maxMeters.toFixed(2)}m ceiling — exit forced onto the rocks under heavy shorebreak.`,
+      `Tide ${hour.tideMeters.toFixed(2)}m is over ${rules.displayName}'s ~${ceiling.toFixed(
+        1,
+      )}m ceiling at ${hour.swellHeightM.toFixed(1)}m swell — exit forced onto the rocks under heavy shorebreak.`,
     );
   }
 

@@ -74,14 +74,16 @@ describe('scoring — Julien ground truth replay', () => {
     expect(proper.safety.safe).toBe(true);
   });
 
-  it('flags Klotok as UNSAFE above its tide ceiling (rock exit under shorebreak)', () => {
+  it('flags Klotok above its tide ceiling, and lowers the ceiling on big swell', () => {
     const klotok = getSpot('klotok-right')!;
-    const wt = { tideSource: 'worldtides' as const, tideUncertaintyM: 0.05, swellHeightM: 1.7 };
-    const tooHigh = scoreWindow(klotok, hour({ ...wt, tideMeters: 2.7 }), DEFAULT_SURFER);
-    expect(tooHigh.safety.safe).toBe(false);
-    expect(tooHigh.safety.reasons.join(' ')).toMatch(/ceiling|rocks|shorebreak/i);
-    const ok = scoreWindow(klotok, hour({ ...wt, tideMeters: 1.9 }), DEFAULT_SURFER);
-    expect(ok.safety.safe).toBe(true);
+    const wt = { tideSource: 'worldtides' as const, tideUncertaintyM: 0.05 };
+    // Normal swell (1.7m): ceiling ~2.5m — 2.3m is fine (matches Julien's 19/05 exit), 2.7m is out.
+    expect(scoreWindow(klotok, hour({ ...wt, swellHeightM: 1.7, tideMeters: 2.3 }), DEFAULT_SURFER).safety.safe).toBe(true);
+    expect(scoreWindow(klotok, hour({ ...wt, swellHeightM: 1.7, tideMeters: 2.7 }), DEFAULT_SURFER).safety.safe).toBe(false);
+    // Big swell (2.5m): ceiling drops to ~2.0m — 2.0m now UNSAFE (matches Julien's 11/06 refusal).
+    const bigDay = scoreWindow(klotok, hour({ ...wt, swellHeightM: 2.5, tideMeters: 2.0 }), DEFAULT_SURFER);
+    expect(bigDay.safety.safe).toBe(false);
+    expect(bigDay.safety.reasons.join(' ')).toMatch(/ceiling|rocks|shorebreak/i);
   });
 
   it('cites Julien in the explanation when tide is decisive', () => {

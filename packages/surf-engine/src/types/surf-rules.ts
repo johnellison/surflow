@@ -16,10 +16,27 @@ export const Provenance = z.object({
 export type Provenance = z.infer<typeof Provenance>;
 
 /** Tide is the safety-critical input. minMeters is a hard gate (reef exposure). */
+/**
+ * Swell-dependent safe tide ceiling. Above the (swell-adjusted) ceiling the exit
+ * is forced over the rocks under heavy shorebreak. The ceiling drops as swell
+ * grows because the shorebreak gets heavier — reverse-engineered from Julien's
+ * scheduled Klotok exits (2.30m exit fine at 2.2m swell) vs his refusal (~2.0m
+ * "dangerous" at 2.5m swell).
+ */
+export const MaxTide = z.object({
+  ceiling: z.number().describe('Safe ceiling (m) at or below refSwellM swell'),
+  refSwellM: z.number().default(2.2),
+  /** Ceiling drops this many metres per metre of swell above refSwellM. */
+  swellSensitivity: z.number().default(0),
+  floorCeiling: z.number().optional().describe('Ceiling never drops below this'),
+  provenance: Provenance,
+});
+export type MaxTide = z.infer<typeof MaxTide>;
+
 export const TideRule = z.object({
   minMeters: z.number().describe('Below this tide height the spot is unsafe (reef too exposed)'),
-  /** Above this tide the spot is unsafe — e.g. exit forced onto rocks under heavy shorebreak. */
-  maxMeters: z.number().optional(),
+  /** Swell-dependent upper safety gate (rock exit under heavy shorebreak). */
+  maxTide: MaxTide.optional(),
   optimalBand: z.tuple([z.number(), z.number()]).describe('[low, high] meters — sweet spot'),
   directionPref: z.enum(['rising', 'falling', 'any']),
   /** On big swell, prefer the high end of the band (more water = less hollow). */

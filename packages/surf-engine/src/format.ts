@@ -1,6 +1,7 @@
 import type { ScoredWindow } from './types/scored-window';
 import type { SessionPlan, PlannedSpotDay } from './types/session-plan';
 import type { SurfRules } from './types/surf-rules';
+import { effectiveTideCeiling } from './tide-ceiling';
 
 const hhmm = (iso: string) => iso.slice(11, 16);
 const dayName = (date: string) =>
@@ -86,7 +87,9 @@ export function formatTideDay(rules: SurfRules, windows: ScoredWindow[], date: s
   const MAXM = 3;
   const lines: string[] = [];
   const t = rules.tide;
-  const ceil = t.maxMeters !== undefined ? ` · max ${t.maxMeters}m ⚠` : '';
+  const peakSwell = windows.reduce((mx, w) => Math.max(mx, w.forecast.swellHeightM), 0);
+  const ceilM = effectiveTideCeiling(rules, peakSwell);
+  const ceil = ceilM !== undefined ? ` · max ~${ceilM.toFixed(1)}m ⚠ (@${peakSwell.toFixed(1)}m swell)` : '';
   lines.push(
     `🌊 ${spotTitle(rules)} — tide ${dayName(date)} ${date}  (min ${t.minMeters}m · sweet ${t.optimalBand[0]}–${t.optimalBand[1]}m${ceil})`,
   );

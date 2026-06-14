@@ -4,6 +4,7 @@ import type { FactorScore } from '../types/scored-window';
 import { DEFAULT_WEIGHTS, type ScoringWeights, type FactorKey } from '../types/weights';
 import type { NormalizedForecastHour } from '../forecast/types';
 import { angularDistance, clamp01, ramp } from './geo';
+import { effectiveTideCeiling } from '../tide-ceiling';
 
 interface Sub {
   score: number;
@@ -96,10 +97,11 @@ function tideBandSub(rules: SurfRules, h: NormalizedForecastHour): Sub {
     score = 0.3 + 0.7 * ramp(h.tideMeters, min, lo);
     note = 'under the sweet spot';
   } else if (h.tideMeters > hi) {
-    // Ramp toward the safety ceiling if one is defined, else a gentle drop-off.
-    const top = rules.tide.maxMeters ?? hi + 1;
+    // Ramp toward the (swell-dependent) safety ceiling if defined, else a gentle drop-off.
+    const ceiling = effectiveTideCeiling(rules, h.swellHeightM);
+    const top = ceiling ?? hi + 1;
     score = 1 - ramp(h.tideMeters, hi, top);
-    note = rules.tide.maxMeters ? 'getting high — watch the exit window' : 'over the sweet spot';
+    note = ceiling ? 'getting high — watch the exit window' : 'over the sweet spot';
   } else {
     score = 1;
     note = 'in the sweet spot';

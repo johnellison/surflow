@@ -17,8 +17,23 @@ export const klotokRight: SurfRules = {
     // Deep water → wide tolerance. Wants enough water for consistency; on big
     // swell + very high tide the paddle-out gets dangerous.
     minMeters: 1.2,
-    // Above this the only way out is over the rocks under heavy shorebreak — very dangerous.
-    maxMeters: 2.5,
+    // Swell-dependent ceiling: ~2.5m on normal days, dropping to ~1.8m as swell
+    // hits ~2.6m (heavier shorebreak). Reverse-engineered from Julien's scheduled
+    // exits vs his "too dangerous" refusals — see .research/julien-extraction.md.
+    maxTide: {
+      ceiling: 2.5,
+      refSwellM: 2.2,
+      swellSensitivity: 1.75, // 2.2m swell→2.5m, 2.5m swell→~1.98m, 2.6m swell→1.8m
+      floorCeiling: 1.6,
+      provenance: {
+        source: 'julien-whatsapp',
+        quote:
+          'Scheduled Klotok exits hit 2.30m at 2.2m swell (msg71, 19/05); refused Klotok as "very hardcore/dangerous paddle out" at ~2.0m tide on 2.5m swell (msg336, 11/06).',
+        ref: 'msg71,msg336',
+        confidence: 'medium',
+        capturedAt: '2026-06-15',
+      },
+    },
     optimalBand: [1.4, 2.0],
     directionPref: 'any',
     moreWaterWhenBig: true,
