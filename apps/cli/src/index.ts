@@ -34,10 +34,14 @@ import {
   formatWindow,
   formatTideDay,
   formatCompare,
+  effectiveTideCeiling,
+  logSession,
+  readSessions,
   calibrateSource,
   DEFAULT_SURFER,
   type NormalizedForecastHour,
   type TideSourceName,
+  type ExitFeel,
 } from '@surflow/surf-engine';
 
 function arg(flags: string[], fallback?: string): string | undefined {
@@ -131,6 +135,64 @@ async function cmdCompare(): Promise<void> {
   process.stdout.write('\n' + formatCompare(pa, pb, date) + '\n');
 }
 
+async function cmdLog(): Promise<void> {
+  const spot = process.argv[3];
+  // No spot (or a flag) → list recent logs.
+  if (!spot || spot.startsWith('--')) {
+    const all = await readSessions();
+    if (!all.length) {
+      process.stdout.write('No sessions logged yet. Log one:\n  surf log <spot> --swell 1.7 --tide 2.0 --exit fine [--note "..."]\n');
+      return;
+    }
+    for (const s of all.slice(-20)) {
+      process.stdout.write(
+        `${s.date}  ${s.spot.padEnd(16)} swell ${fmt(s.swellM)}m  tide ${fmt(s.tideM)}m  exit:${(s.exitFeel ?? '-').padEnd(9)} ${s.note ?? ''}\n`,
+      );
+    }
+    return;
+  }
+  if (!getSpot(spot)) {
+    fail(`Unknown spot "${spot}". Try: ${loadKnowledgeBase().map((s) => s.spotSlug).join(', ')}`);
+    return;
+  }
+  const exit = arg(['--exit']) as ExitFeel | undefined;
+  if (exit && !['fine', 'sketchy', 'dangerous'].includes(exit)) {
+    fail(`--exit must be one of: fine, sketchy, dangerous`);
+    return;
+  }
+  const entry = {
+    loggedAt: new Date().toISOString(),
+    date: arg(['--date']) ?? today(),
+    spot,
+    swellM: arg(['--swell']) !== undefined ? Number(arg(['--swell'])) : undefined,
+    tideM: arg(['--tide']) !== undefined ? Number(arg(['--tide'])) : undefined,
+    exitFeel: exit,
+    note: arg(['--note']),
+  };
+  await logSession(entry);
+  process.stdout.write(
+    `✓ Logged ${entry.date} ${spot}: swell ${fmt(entry.swellM)}m, tide ${fmt(entry.tideM)}m, exit ${entry.exitFeel ?? '-'}\n`,
+  );
+  // If this is a ceiling-relevant Klotok exit, show how it sits vs the current model.
+  const rules = getSpot(spot)!;
+  if (entry.exitFeel && entry.tideM !== undefined && entry.swellM !== undefined) {
+    const ceil = effectiveTideCeiling(rules, entry.swellM);
+    if (ceil !== undefined) {
+      const verb = entry.tideM > ceil ? 'above' : 'below';
+      process.stdout.write(
+        `  model ceiling at ${entry.swellM}m swell ≈ ${ceil.toFixed(1)}m — you exited ${verb} it at ${entry.tideM}m feeling "${entry.exitFeel}".\n`,
+      );
+      if ((entry.exitFeel === 'fine' && entry.tideM > ceil) || (entry.exitFeel === 'dangerous' && entry.tideM < ceil)) {
+        process.stdout.write(`  ⚑ This disagrees with the model — worth recalibrating the ceiling.\n`);
+      }
+    }
+  }
+}
+
+function fmt(n?: number): string {
+  return n === undefined ? '?' : String(n);
+}
+
 function cmdSpots(): void {
   for (const s of loadKnowledgeBase()) {
     const t = s.section ? `${s.displayName} — ${s.section}` : s.displayName;
@@ -165,6 +227,7 @@ const USAGE = `surf — East Bali session planner
   surf check <spot-slug> --tide 1.3 [--rising|--falling] --swell 1.3 --period 6 [--wind 8 --winddir 300]
   surf compare <spot-a> <spot-b> [--date YYYY-MM-DD]
   surf tide <spot-slug> [--date YYYY-MM-DD]
+  surf log [<spot-slug> --swell 1.7 --tide 2.0 --exit fine|sketchy|dangerous [--note "..."]]
   surf spots
   surf calibrate
 `;
@@ -176,6 +239,7 @@ async function main(): Promise<void> {
     case 'check': return cmdCheck();
     case 'compare': return cmdCompare();
     case 'tide': return cmdTide();
+    case 'log': return cmdLog();
     case 'spots': return cmdSpots();
     case 'calibrate': return cmdCalibrate();
     default:
