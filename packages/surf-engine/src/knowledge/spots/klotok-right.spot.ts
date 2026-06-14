@@ -7,9 +7,9 @@ export const klotokRight: SurfRules = {
   spotSlug: 'klotok-right',
   displayName: "Klotok's Right",
   region: 'east-bali',
-  latitude: -8.544,
-  longitude: 115.403,
-  facingBearing: 135,
+  latitude: -8.5753, // Julien's pin (Pantai Batu Tumpeng); corrected from satellite — was ~3.5km inland
+  longitude: 115.4112,
+  facingBearing: 185, // faces ~S — takes the SSW swell more squarely than the SE-facing reefs (why it holds size)
   breakType: 'point',
   bottomType: 'deep-reef',
   minSkill: 'intermediate',
@@ -66,7 +66,7 @@ export const klotokRight: SurfRules = {
     },
   },
   wind: {
-    offshoreBearing: 300,
+    offshoreBearing: 345, // S-facing coast → offshore is ~N/NNW (land is due north here)
     toleranceDeg: 60,
     maxKnots: 14,
     provenance: {

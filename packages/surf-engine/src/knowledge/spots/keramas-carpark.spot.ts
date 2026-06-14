@@ -10,7 +10,7 @@ export const keramasCarpark: SurfRules = {
   region: 'east-bali',
   latitude: -8.5885,
   longitude: 115.347,
-  facingBearing: 130,
+  facingBearing: 140, // SE-facing (satellite-verified)
   breakType: 'point',
   bottomType: 'reef',
   minSkill: 'advanced',
@@ -41,7 +41,7 @@ export const keramasCarpark: SurfRules = {
     },
   },
   wind: {
-    offshoreBearing: 300,
+    offshoreBearing: 320, // SE-facing → offshore ~NW
     toleranceDeg: 60,
     maxKnots: 12,
     provenance: {

@@ -39,3 +39,6 @@ android/
 
 # Local forecast cache
 .surflow/
+
+# Satellite/spot imagery grabs (local reference only)
+.research/imagery/

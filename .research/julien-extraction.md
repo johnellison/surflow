@@ -100,6 +100,12 @@ note to always eyeball the exit on site. Sand bathymetry = irreducible; not mode
 - **Galak Beach** day when normal spots unmanageable. (msg 331)
 - **Sanur baby reef** (inside coral barrier S of Sanur, lefthander, boat from Mertasari): retreat spot, ⅓–½ Keramas size, for small/recovery days — but **dies in onshore wind**. (msg 287, 302)
 
+## Satellite orientation audit (Esri World Imagery, 14/06)
+
+Read each spot's coastline off satellite (plates in `.research/imagery/`, gitignored):
+- **Coordinate fixes:** Klotok was ~3.5km inland → corrected to Julien's pin **Pantai Batu Tumpeng (-8.5753, 115.4112)**. Lembeng was ~1km inland → **Ketewel beach (-8.6135, 115.319)**.
+- **Orientation:** the reef cluster (Keramas, Cucukan, Kubur, Lembeng) faces **SE/ESE (~120–145°)** → offshore wind ~NW (300–325°). **Klotok faces ~S (185°)** — ocean to the south — so it takes the SSW groundswell more squarely (why it's the long open wall that holds size) and its offshore is ~N/NNW (345°). Per-spot `offshoreBearing` + `facingBearing` updated accordingly.
+
 ## Approx coordinates (for forecast + tide; spots share one ~8km Open-Meteo cell)
 | Spot | lat | lon | source |
 |------|-----|-----|--------|

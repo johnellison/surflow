@@ -7,9 +7,9 @@ export const lembang: SurfRules = {
   spotSlug: 'lembang',
   displayName: 'Lembang',
   region: 'east-bali',
-  latitude: -8.605,
-  longitude: 115.315,
-  facingBearing: 125,
+  latitude: -8.6135, // Ketewel beach; corrected from satellite — was ~1km inland
+  longitude: 115.319,
+  facingBearing: 145,
   breakType: 'beach',
   bottomType: 'sand',
   minSkill: 'intermediate',
@@ -40,7 +40,7 @@ export const lembang: SurfRules = {
     },
   },
   wind: {
-    offshoreBearing: 300,
+    offshoreBearing: 325, // SE-facing → offshore ~NW
     toleranceDeg: 70,
     maxKnots: 12,
     provenance: {

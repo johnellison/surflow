@@ -9,7 +9,7 @@ export const cucukan: SurfRules = {
   region: 'east-bali',
   latitude: -8.58936, // Julien's dropped pin (msg57)
   longitude: 115.3495,
-  facingBearing: 130,
+  facingBearing: 120, // ESE-facing (satellite-verified) — slightly more east than the others
   breakType: 'reef',
   bottomType: 'reef',
   minSkill: 'intermediate',

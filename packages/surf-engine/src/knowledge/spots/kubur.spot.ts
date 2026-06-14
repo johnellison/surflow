@@ -9,7 +9,7 @@ export const kubur: SurfRules = {
   region: 'east-bali',
   latitude: -8.584,
   longitude: 115.352,
-  facingBearing: 130,
+  facingBearing: 140, // SE-facing (satellite-verified)
   breakType: 'beach',
   bottomType: 'sand',
   minSkill: 'intermediate',
@@ -40,7 +40,7 @@ export const kubur: SurfRules = {
     },
   },
   wind: {
-    offshoreBearing: 300,
+    offshoreBearing: 320, // SE-facing → offshore ~NW
     toleranceDeg: 70,
     maxKnots: 12,
     provenance: {

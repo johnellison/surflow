@@ -10,7 +10,7 @@ export const keramasPeak: SurfRules = {
   region: 'east-bali',
   latitude: -8.5908,
   longitude: 115.345,
-  facingBearing: 130,
+  facingBearing: 140, // SE-facing (satellite-verified)
   breakType: 'reef',
   bottomType: 'reef',
   minSkill: 'advanced',
@@ -43,7 +43,7 @@ export const keramasPeak: SurfRules = {
     },
   },
   wind: {
-    offshoreBearing: 300,
+    offshoreBearing: 320, // SE-facing → offshore ~NW
     toleranceDeg: 60,
     maxKnots: 12,
     provenance: {
