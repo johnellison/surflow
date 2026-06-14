@@ -17,21 +17,26 @@ export const klotokRight: SurfRules = {
     // Deep water → wide tolerance. Wants enough water for consistency; on big
     // swell + very high tide the paddle-out gets dangerous.
     minMeters: 1.2,
-    // Swell-dependent ceiling: ~2.5m on normal days, dropping to ~1.8m as swell
-    // hits ~2.6m (heavier shorebreak). Reverse-engineered from Julien's scheduled
-    // exits vs his "too dangerous" refusals — see .research/julien-extraction.md.
+    // Heuristic ceiling — Julien confirmed there's "no rule of thumb", it's
+    // multifactorial: swell (size/dir/period) = power on the way in; offshore
+    // wind makes the shorebreak more barreling/dangerous; and shifting sand
+    // platforms change the exit regularly. We model swell size + offshore wind
+    // and treat the sand as irreducible uncertainty — ALWAYS reality-check on
+    // site. Baseline from his scheduled exits (2.30m fine @2.2m swell, msg71) vs
+    // his refusal (~2.0m "dangerous" @2.5m swell, msg336).
     maxTide: {
       ceiling: 2.5,
       refSwellM: 2.2,
       swellSensitivity: 1.75, // 2.2m swell→2.5m, 2.5m swell→~1.98m, 2.6m swell→1.8m
+      offshoreWindSensitivity: 0.02, // offshore wind hollows the shorebreak exit (~-0.2m at 10kn)
       floorCeiling: 1.6,
       provenance: {
         source: 'julien-whatsapp',
         quote:
-          'Scheduled Klotok exits hit 2.30m at 2.2m swell (msg71, 19/05); refused Klotok as "very hardcore/dangerous paddle out" at ~2.0m tide on 2.5m swell (msg336, 11/06).',
-        ref: 'msg71,msg336',
-        confidence: 'medium',
-        capturedAt: '2026-06-15',
+          'No rule of thumb — highly multi-factorial: swell size/direction/period (power coming back to land); offshore wind makes the shorebreak more barreling/dangerous (onshore safer); and ever-changing sand platforms we enter/exit on. "No exact science there… theory VS reality check when we get on site."',
+        ref: 'msg347 (reply 14/06), msg71, msg336',
+        confidence: 'high',
+        capturedAt: '2026-06-14',
       },
     },
     optimalBand: [1.4, 2.0],
@@ -93,6 +98,7 @@ export const klotokRight: SurfRules = {
     'The wall closest to a Moroccan point — long open-face rights, intermediate-friendly at moderate size.',
     'Sunrise meetings (~05:45). On the biggest days it still works but becomes an advanced/gun wave.',
     "Klotok's Left is a separate spot that wants LOW tide — different access entirely.",
+    'High-tide exit danger is a heuristic, not a hard line (Julien): worse with bigger swell AND with offshore wind (hollower shorebreak), and the sand exit platforms shift — eyeball the shorebreak/exit on site before committing.',
   ],
   version: 2,
   updatedAt: '2026-06-15',

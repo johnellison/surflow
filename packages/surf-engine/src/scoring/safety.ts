@@ -32,7 +32,10 @@ export function assessSafety(
   }
 
   // --- Tide ceiling (swell-dependent; dangerous rock exit under heavy shorebreak) ---
-  const ceiling = effectiveTideCeiling(rules, hour.swellHeightM);
+  const ceiling = effectiveTideCeiling(rules, hour.swellHeightM, {
+    windKnots: hour.windKnots,
+    windDirDeg: hour.windDirDeg,
+  });
   if (ceiling !== undefined && hour.tideMeters > ceiling - buffer) {
     reasons.push(
       `Tide ${hour.tideMeters.toFixed(2)}m is over ${rules.displayName}'s ~${ceiling.toFixed(

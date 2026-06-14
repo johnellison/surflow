@@ -24,10 +24,16 @@ export type Provenance = z.infer<typeof Provenance>;
  * "dangerous" at 2.5m swell).
  */
 export const MaxTide = z.object({
-  ceiling: z.number().describe('Safe ceiling (m) at or below refSwellM swell'),
+  ceiling: z.number().describe('Safe ceiling (m) at or below refSwellM swell, in calm wind'),
   refSwellM: z.number().default(2.2),
   /** Ceiling drops this many metres per metre of swell above refSwellM. */
   swellSensitivity: z.number().default(0),
+  /**
+   * Ceiling drops this many metres per knot of OFFSHORE wind — offshore wind
+   * makes the shorebreak exit more hollow/dangerous (Julien). Onshore is treated
+   * as neutral (safer, but we don't raise the ceiling).
+   */
+  offshoreWindSensitivity: z.number().default(0),
   floorCeiling: z.number().optional().describe('Ceiling never drops below this'),
   provenance: Provenance,
 });

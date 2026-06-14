@@ -98,7 +98,10 @@ function tideBandSub(rules: SurfRules, h: NormalizedForecastHour): Sub {
     note = 'under the sweet spot';
   } else if (h.tideMeters > hi) {
     // Ramp toward the (swell-dependent) safety ceiling if defined, else a gentle drop-off.
-    const ceiling = effectiveTideCeiling(rules, h.swellHeightM);
+    const ceiling = effectiveTideCeiling(rules, h.swellHeightM, {
+      windKnots: h.windKnots,
+      windDirDeg: h.windDirDeg,
+    });
     const top = ceiling ?? hi + 1;
     score = 1 - ramp(h.tideMeters, hi, top);
     note = ceiling ? 'getting high — watch the exit window' : 'over the sweet spot';

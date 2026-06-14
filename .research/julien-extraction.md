@@ -88,6 +88,14 @@ shorebreak). Modelled as `maxTide` (ceiling 2.5, refSwell 2.2, sensitivity 1.75,
 floor 1.6) on klotok-right. The engine reproduces both the 2.30m "fine" exit and
 the 2.0m "dangerous" refusal.
 
+**Julien's confirmation (reply 2026-06-14):** there's **no rule of thumb** — it's
+multifactorial: (1) **swell size/direction/period** = power coming back to land;
+(2) **wind** — *offshore makes the shorebreak more barreling/dangerous*, onshore
+safer (apply strength); (3) **ever-changing sand platforms** at Klotok right that
+shift the entry/exit regularly. *"No exact science there… theory VS reality check
+when we get on site."* → Added `offshoreWindSensitivity: 0.02` to the model and a
+note to always eyeball the exit on site. Sand bathymetry = irreducible; not modelled.
+
 ## Big-day escape options (for completeness, not in user's 6-spot list)
 - **Galak Beach** day when normal spots unmanageable. (msg 331)
 - **Sanur baby reef** (inside coral barrier S of Sanur, lefthander, boat from Mertasari): retreat spot, ⅓–½ Keramas size, for small/recovery days — but **dies in onshore wind**. (msg 287, 302)
