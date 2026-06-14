@@ -2,6 +2,7 @@ import type { ScoredWindow } from './types/scored-window';
 import type { SessionPlan, PlannedSpotDay } from './types/session-plan';
 import type { SurfRules } from './types/surf-rules';
 import { effectiveTideCeiling } from './tide-ceiling';
+import { waveCheckMinutes } from './wave-check';
 
 const hhmm = (iso: string) => iso.slice(11, 16);
 const dayName = (date: string) =>
@@ -19,7 +20,8 @@ export function formatWindow(w: ScoredWindow): string {
     0,
   )}kn, tide ${f.tideMeters.toFixed(2)}m ${f.tideState}`;
   const flag = w.safety.safe ? '' : ' ⛔';
-  return `${hhmm(w.time)}  ${stars(w.score)} ${String(w.score).padStart(3)}  ${cond}${flag}\n      ${w.summary}`;
+  const check = `wave-check ~${waveCheckMinutes(f.swellHeightM)}min (be on the spot 20–30min early)`;
+  return `${hhmm(w.time)}  ${stars(w.score)} ${String(w.score).padStart(3)}  ${cond}${flag}\n      ${w.summary}\n      ${check}`;
 }
 
 /** A full plan as a readable markdown report (used by the CLI and the /surf-plan skill). */

@@ -13,6 +13,7 @@ export { EAST_BALI_SWELL_POINT } from './knowledge/region';
 export { getForecast, type ForecastQuery } from './forecast/normalize';
 export { formatPlan, formatWindow, formatTideDay, formatCompare } from './format';
 export { effectiveTideCeiling } from './tide-ceiling';
+export { waveCheckMinutes } from './wave-check';
 export { logSession, readSessions, type SessionLog, type ExitFeel } from './log';
 
 // Calibration (for the `surf calibrate` command / tests)

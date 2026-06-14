@@ -61,6 +61,7 @@ export const lembang: SurfRules = {
   notes: [
     'Beach break for smaller swell and lower/dropping tide — the "later in the morning" option once the tide has run off.',
     'A safe Ketewel alternative when Klotok is too big on a high tide (msg336).',
+    'Temple peak = the one deeper to the LEFT of the boat statue. Complementary with Kubur (Julien, 14/06): if the swell is big enough for the temple peak to break consistently, Kubur is probably super fast (esp. the left); if it’s too soft for the temple peak, Kubur is easier. Keep Kubur as the back-up.',
   ],
   version: 2,
   updatedAt: '2026-06-15',

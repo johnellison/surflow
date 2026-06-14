@@ -61,6 +61,7 @@ export const kubur: SurfRules = {
   notes: [
     'Most tide- and skill-tolerant spot here — the dependable back-up (msg328).',
     'Sand bottom: safe on a wide tide range, but a noon high-tide session risks onshore wind.',
+    'Back-up for Lembeng temple peak — on bigger swell Kubur gets super fast, especially the left (Julien, 14/06).',
   ],
   version: 2,
   updatedAt: '2026-06-15',

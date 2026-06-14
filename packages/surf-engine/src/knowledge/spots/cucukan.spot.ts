@@ -63,6 +63,7 @@ export const cucukan: SurfRules = {
   notes: [
     "One of Julien's favourite spots — isolated, surrounded by rice fields.",
     'Surf the dawn→08:30 window on a rising tide; if it gets difficult, fall back to Kubur.',
+    'Take off at the PEAK only — no take-off on the bowl (Julien, 14/06).',
   ],
   version: 2,
   updatedAt: '2026-06-15',
