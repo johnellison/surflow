@@ -34,7 +34,7 @@ export const klotokRight: SurfRules = {
         source: 'julien-whatsapp',
         quote:
           'No rule of thumb — highly multi-factorial: swell size/direction/period (power coming back to land); offshore wind makes the shorebreak more barreling/dangerous (onshore safer); and ever-changing sand platforms we enter/exit on. "No exact science there… theory VS reality check when we get on site."',
-        ref: 'msg347 (reply 14/06), msg71, msg336',
+        ref: 'reply 14/06 (multifactorial + "2.2m = tricky on 1.7m swell, big waves push tide above chart, onshore helps exit"), msg71, msg336',
         confidence: 'high',
         capturedAt: '2026-06-14',
       },
@@ -99,6 +99,7 @@ export const klotokRight: SurfRules = {
     'Sunrise meetings (~05:45). On the biggest days it still works but becomes an advanced/gun wave.',
     "Klotok's Left is a separate spot that wants LOW tide — different access entirely.",
     'High-tide exit danger is a heuristic, not a hard line (Julien): worse with bigger swell AND with offshore wind (hollower shorebreak), and the sand exit platforms shift — eyeball the shorebreak/exit on site before committing.',
+    'Julien (14/06): on ~1.7m swell, 2.2m tide is the start of "tricky time"; bigger swell → lower tricky tide; big waves push the ACTUAL tide above the chart; onshore morning trades (e.g. Mon/Sat this week) hurt wave quality but HELP the exit. Check the inside in front of the stairs from ~07:45.',
   ],
   version: 2,
   updatedAt: '2026-06-15',
