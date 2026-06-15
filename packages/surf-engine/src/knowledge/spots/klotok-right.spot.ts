@@ -25,7 +25,7 @@ export const klotokRight: SurfRules = {
     // site. Baseline from his scheduled exits (2.30m fine @2.2m swell, msg71) vs
     // his refusal (~2.0m "dangerous" @2.5m swell, msg336).
     maxTide: {
-      ceiling: 2.5,
+      ceiling: 2.4, // tightened 2.5→2.4: surfer logged a hairy 2.2m exit on 1.7m swell (15/06)
       refSwellM: 2.2,
       swellSensitivity: 1.75, // 2.2m swell→2.5m, 2.5m swell→~1.98m, 2.6m swell→1.8m
       offshoreWindSensitivity: 0.02, // offshore wind hollows the shorebreak exit (~-0.2m at 10kn)
@@ -34,12 +34,12 @@ export const klotokRight: SurfRules = {
         source: 'julien-whatsapp',
         quote:
           'No rule of thumb — highly multi-factorial: swell size/direction/period (power coming back to land); offshore wind makes the shorebreak more barreling/dangerous (onshore safer); and ever-changing sand platforms we enter/exit on. "No exact science there… theory VS reality check when we get on site."',
-        ref: 'reply 14/06 (multifactorial + "2.2m = tricky on 1.7m swell, big waves push tide above chart, onshore helps exit"), msg71, msg336',
+        ref: 'reply 14/06 (multifactorial); surfer session 15/06 (2.2m exit hairy on 1.7m swell — heavy shorebreak, 7ft+ set caught the lull on exit → ceiling 2.5→2.4, optimal top 2.0→1.9); msg71, msg336',
         confidence: 'high',
         capturedAt: '2026-06-14',
       },
     },
-    optimalBand: [1.4, 2.0],
+    optimalBand: [1.4, 1.9], // top trimmed 2.0→1.9 after the 15/06 hairy 2.2m exit
     directionPref: 'any',
     moreWaterWhenBig: true,
     provenance: {
