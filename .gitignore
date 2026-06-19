@@ -4,6 +4,11 @@ node_modules/
 # Environment variables
 .env
 .env*.local
+# dotenvx private keys — never commit these
+.env.keys
+**/.env.keys
+# But DO track the encrypted surf key (safe to commit — only ciphertext)
+!apps/cli/.env
 
 # Build outputs
 dist/

@@ -6,7 +6,7 @@
     "surf": "./src/index.ts"
   },
   "scripts": {
-    "surf": "tsx src/index.ts",
+    "surf": "dotenvx run -f .env -- tsx src/index.ts",
     "bundle": "esbuild src/index.ts --bundle --platform=node --target=node22 --format=cjs --outfile=dist/surf.cjs --external:node:*",
     "typecheck": "tsc --noEmit"
   },
