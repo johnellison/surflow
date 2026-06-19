@@ -11,7 +11,7 @@ export { scoreWindow } from './scoring/window';
 export { loadKnowledgeBase, getSpot, SPOT_SLUGS } from './knowledge/index';
 export { EAST_BALI_SWELL_POINT } from './knowledge/region';
 export { getForecast, type ForecastQuery } from './forecast/normalize';
-export { formatPlan, formatWindow, formatTideDay, formatCompare } from './format';
+export { formatPlan, formatWindow, formatTideDay, formatCompare, formatVerify } from './format';
 export { effectiveTideCeiling } from './tide-ceiling';
 export { waveCheckMinutes } from './wave-check';
 export { logSession, readSessions, type SessionLog, type ExitFeel } from './log';
@@ -26,6 +26,9 @@ export {
   type AffineFit,
   type CalibrationPair,
 } from './knowledge/calibration';
+
+// Cross-model verification
+export { verifyForecast, classifyAgreement } from './forecast/verify';
 
 // Types
 export * from './types/index';

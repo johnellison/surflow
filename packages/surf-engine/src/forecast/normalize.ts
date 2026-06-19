@@ -70,9 +70,7 @@ export async function getForecast(q: ForecastQuery): Promise<NormalizedForecastH
       swellHeightM: si !== undefined ? num(sw.swell_wave_height[si]) ?? 0 : 0,
       swellPeriodS: period,
       swellDirDeg: si !== undefined ? num(sw.swell_wave_direction[si]) ?? 0 : 0,
-      windKnots: round1((wi !== undefined ? num(w.wind_speed_10m[wi]) ?? 0 : 0) * KMH_TO_KNOTS),
-      windGustKnots: round1((wi !== undefined ? num(w.wind_gusts_10m[wi]) ?? 0 : 0) * KMH_TO_KNOTS),
-      windDirDeg: wi !== undefined ? num(w.wind_direction_10m[wi]) ?? 0 : 0,
+      ...resolveWind(time, wi, w),
       tideMeters: tide.points[i]?.meters ?? 0,
       tideState: tide.points[i]?.state ?? 'rising',
       tideSource: tide.source,
@@ -80,6 +78,38 @@ export async function getForecast(q: ForecastQuery): Promise<NormalizedForecastH
       waterTempC: num(loc.sea_surface_temperature[i]) ?? 0,
     };
   });
+}
+
+// Jun–Sep trade-wind correction: Open-Meteo underestimates ESE trades at this
+// location. When the model shows <8 kn in the dry season, substitute the
+// empirical baseline (14–18 kn ESE) so scoring reflects real offshore conditions.
+const TRADE_WIND_MONTHS = new Set([6, 7, 8, 9]);
+const TRADE_WIND_THRESHOLD_KN = 8;
+const TRADE_WIND_SPEED_KN = 15;
+const TRADE_WIND_GUST_KN = 18;
+const TRADE_WIND_DIR_DEG = 112; // ESE
+
+type WeatherHourly = { wind_speed_10m: (number | null)[]; wind_gusts_10m: (number | null)[]; wind_direction_10m: (number | null)[] };
+
+function resolveWind(
+  time: string,
+  wi: number | undefined,
+  w: WeatherHourly,
+): { windKnots: number; windGustKnots: number; windDirDeg: number; windSource: 'model' | 'seasonal-default' } {
+  const rawKn = round1((wi !== undefined ? num(w.wind_speed_10m[wi]) ?? 0 : 0) * KMH_TO_KNOTS);
+  const rawGustKn = round1((wi !== undefined ? num(w.wind_gusts_10m[wi]) ?? 0 : 0) * KMH_TO_KNOTS);
+  const rawDirDeg = wi !== undefined ? num(w.wind_direction_10m[wi]) ?? 0 : 0;
+  // time strings are already in Asia/Makassar — extract month directly
+  const localMonth = Number(time.slice(5, 7));
+  if (TRADE_WIND_MONTHS.has(localMonth) && rawKn < TRADE_WIND_THRESHOLD_KN) {
+    return {
+      windKnots: TRADE_WIND_SPEED_KN,
+      windGustKnots: Math.max(rawGustKn, TRADE_WIND_GUST_KN),
+      windDirDeg: TRADE_WIND_DIR_DEG,
+      windSource: 'seasonal-default',
+    };
+  }
+  return { windKnots: rawKn, windGustKnots: rawGustKn, windDirDeg: rawDirDeg, windSource: 'model' };
 }
 
 function num(v: number | null | undefined): number | null {

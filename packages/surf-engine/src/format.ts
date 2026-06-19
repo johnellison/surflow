@@ -1,6 +1,7 @@
 import type { ScoredWindow } from './types/scored-window';
 import type { SessionPlan, PlannedSpotDay } from './types/session-plan';
 import type { SurfRules } from './types/surf-rules';
+import type { ModelAgreement } from './types/model-agreement';
 import { effectiveTideCeiling } from './tide-ceiling';
 import { waveCheckMinutes } from './wave-check';
 
@@ -16,12 +17,22 @@ function stars(score: number): string {
 /** One window as a compact line. */
 export function formatWindow(w: ScoredWindow): string {
   const f = w.forecast;
-  const cond = `${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s, wind ${f.windKnots.toFixed(
-    0,
-  )}kn, tide ${f.tideMeters.toFixed(2)}m ${f.tideState}`;
+  const windLabel = f.windSource === 'seasonal-default' ? ' [wind: seasonal default]' : '';
+  const cond = `${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s, wind ${f.windKnots.toFixed(0)}kn${windLabel}, tide ${f.tideMeters.toFixed(2)}m ${f.tideState}`;
   const flag = w.safety.safe ? '' : ' ⛔';
   const check = `wave-check ~${waveCheckMinutes(f.swellHeightM)}min (be on the spot 20–30min early)`;
   return `${hhmm(w.time)}  ${stars(w.score)} ${String(w.score).padStart(3)}  ${cond}${flag}\n      ${w.summary}\n      ${check}`;
+}
+
+function agreementTag(ma: ModelAgreement | null | undefined): string {
+  if (!ma) return '';
+  switch (ma.level) {
+    case 'agree':       return '✓ ';
+    case 'caution':     return '⚠ ';
+    case 'diverge':     return '⚠ ';
+    case 'unavailable': return '‼ ';
+    case 'horizon':     return '? ';
+  }
 }
 
 /** A full plan as a readable markdown report (used by the CLI and the /surf-plan skill). */
@@ -52,7 +63,7 @@ export function formatPlan(plan: SessionPlan): string {
   }
 
   for (const day of plan.byDay) {
-    lines.push(`\n## ${dayName(day.date)} ${day.date}`);
+    lines.push(`\n## ${agreementTag(day.modelAgreement)}${dayName(day.date)} ${day.date}`);
     const surfable = day.ranked.filter((s) => s.best);
     if (surfable.length === 0) {
       lines.push('_Nothing safe today._');
@@ -138,6 +149,29 @@ export function formatCompare(a: PlannedSpotDay, b: PlannedSpotDay, date: string
   const hours = [...new Set([...ha.keys(), ...hb.keys()])].sort();
   for (const h of hours) {
     lines.push(`${h}   ${pad(cell(ha.get(h)))} ${pad(cell(hb.get(h)))}`);
+  }
+  return lines.join('\n');
+}
+
+/** Standalone cross-model verification table for `surf verify`. */
+export function formatVerify(agreementMap: Map<string, ModelAgreement>): string {
+  const lines: string[] = ['# Cross-model agreement (Open-Meteo best_match vs ECMWF WAM025)'];
+  lines.push('');
+  for (const [date, ma] of [...agreementMap.entries()].sort()) {
+    const tag = agreementTag(ma) || '  ';
+    let detail = '';
+    if ((ma.level === 'diverge' || ma.level === 'caution') && (ma.heightDiffPct !== null || ma.periodDiffS !== null)) {
+      const hStr = ma.heightDiffPct !== null ? `height Δ${ma.heightDiffPct.toFixed(0)}%` : '';
+      const pStr = ma.periodDiffS !== null ? `period Δ${ma.periodDiffS.toFixed(1)}s` : '';
+      detail = `  (${[hStr, pStr].filter(Boolean).join(', ')})`;
+    } else if (ma.level === 'unavailable') {
+      detail = '  (secondary model fetch failed or timed out)';
+    } else if (ma.level === 'horizon') {
+      detail = '  (>7-day model horizon — high uncertainty regardless)';
+    } else if (ma.level === 'agree' && ma.heightDiffPct !== null) {
+      detail = `  (height Δ${ma.heightDiffPct.toFixed(0)}%, period Δ${(ma.periodDiffS ?? 0).toFixed(1)}s)`;
+    }
+    lines.push(`${tag}${date}${detail}`);
   }
   return lines.join('\n');
 }

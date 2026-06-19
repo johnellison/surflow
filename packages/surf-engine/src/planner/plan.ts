@@ -2,10 +2,12 @@ import type { SurfRules } from '../types/surf-rules';
 import { DEFAULT_SURFER, type SurferProfile } from '../types/surfer-profile';
 import { DEFAULT_WEIGHTS, type ScoringWeights } from '../types/weights';
 import type { ScoredWindow } from '../types/scored-window';
+import type { ModelAgreement } from '../types/model-agreement';
 import type { DayPlan, PlannedSpotDay, SessionPlan } from '../types/session-plan';
 import { loadKnowledgeBase } from '../knowledge/index';
 import { EAST_BALI_SWELL_POINT } from '../knowledge/region';
 import { getForecast } from '../forecast/normalize';
+import { verifyForecast } from '../forecast/verify';
 import { scoreWindow } from '../scoring/window';
 import { computeDaylight } from './daylight';
 
@@ -21,6 +23,10 @@ export interface PlanOptions {
 
 const localDate = (iso: string) => iso.slice(0, 10);
 const localHour = (iso: string) => Number(iso.slice(11, 13));
+const localToday = () =>
+  new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Makassar' }))
+    .toISOString()
+    .slice(0, 10);
 
 /**
  * The single public seam every adapter (Claude skill, CLI, future WhatsApp
@@ -34,13 +40,18 @@ export async function planSessions(opts: PlanOptions): Promise<SessionPlan> {
   const spots = opts.spots ? kb.filter((s) => opts.spots!.includes(s.spotSlug)) : kb;
   const { from, to } = opts.dateRange;
 
-  // Score every (spot, daylight hour) in range.
-  const perSpot = await Promise.all(
-    spots.map(async (rules) => ({
-      rules,
-      windows: await scoreSpot(rules, from, to, surfer, weights),
-    })),
-  );
+  const todayStr = opts.now?.slice(0, 10) ?? localToday();
+
+  // Score every (spot, daylight hour) in range + cross-model verification in parallel.
+  const [perSpot, agreementMap] = await Promise.all([
+    Promise.all(
+      spots.map(async (rules) => ({
+        rules,
+        windows: await scoreSpot(rules, from, to, surfer, weights),
+      })),
+    ),
+    verifyForecast({ from, to }, todayStr).catch(() => new Map<string, ModelAgreement>()),
+  ]);
 
   // Bucket windows by date.
   const dates = enumerateDates(from, to);
@@ -60,7 +71,7 @@ export async function planSessions(opts: PlanOptions): Promise<SessionPlan> {
         };
       })
       .sort((a, b) => (b.best?.score ?? -1) - (a.best?.score ?? -1));
-    return { date, ranked };
+    return { date, ranked, modelAgreement: agreementMap.get(date) ?? null };
   });
 
   // Best safe window across the whole range.

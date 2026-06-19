@@ -34,6 +34,8 @@ import {
   formatWindow,
   formatTideDay,
   formatCompare,
+  formatVerify,
+  verifyForecast,
   effectiveTideCeiling,
   logSession,
   readSessions,
@@ -203,6 +205,15 @@ function cmdSpots(): void {
   }
 }
 
+async function cmdVerify(): Promise<void> {
+  const from = arg(['--from']) ?? today();
+  const days = Number(arg(['--days'], '7'));
+  const to = arg(['--to']) ?? addDays(from, days - 1);
+  process.stderr.write(`Cross-checking models for East Bali ${from} → ${to}…\n`);
+  const agreementMap = await verifyForecast({ from, to }, today());
+  process.stdout.write(formatVerify(agreementMap) + '\n');
+}
+
 function cmdCalibrate(): void {
   for (const src of ['open-meteo', 'worldtides'] as TideSourceName[]) {
     const fit = calibrateSource(src);
@@ -223,11 +234,12 @@ function fail(msg: string): void {
 
 const USAGE = `surf — East Bali session planner
 
-  surf plan [--days 7] [--from YYYY-MM-DD] [--to YYYY-MM-DD] [--spots a,b,c]
-  surf check <spot-slug> --tide 1.3 [--rising|--falling] --swell 1.3 --period 6 [--wind 8 --winddir 300]
+  surf plan    [--days 7] [--from YYYY-MM-DD] [--to YYYY-MM-DD] [--spots a,b,c]
+  surf verify  [--days 7] [--from YYYY-MM-DD] [--to YYYY-MM-DD]
+  surf check   <spot-slug> --tide 1.3 [--rising|--falling] --swell 1.3 --period 6 [--wind 8 --winddir 300]
   surf compare <spot-a> <spot-b> [--date YYYY-MM-DD]
-  surf tide <spot-slug> [--date YYYY-MM-DD]
-  surf log [<spot-slug> --swell 1.7 --tide 2.0 --exit fine|sketchy|dangerous [--note "..."]]
+  surf tide    <spot-slug> [--date YYYY-MM-DD]
+  surf log     [<spot-slug> --swell 1.7 --tide 2.0 --exit fine|sketchy|dangerous [--note "..."]]
   surf spots
   surf calibrate
 `;
@@ -236,6 +248,7 @@ async function main(): Promise<void> {
   const cmd = process.argv[2];
   switch (cmd) {
     case 'plan': return cmdPlan();
+    case 'verify': return cmdVerify();
     case 'check': return cmdCheck();
     case 'compare': return cmdCompare();
     case 'tide': return cmdTide();

@@ -22,4 +22,6 @@ export interface NormalizedForecastHour {
   /** ± metres uncertainty on the tide reading (drives the safety buffer). */
   tideUncertaintyM: number;
   waterTempC: number;
+  /** Set when the Jun–Sep seasonal trade-wind bias correction fired (raw model showed <8 kn). */
+  windSource?: 'model' | 'seasonal-default';
 }
