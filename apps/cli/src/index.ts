@@ -31,6 +31,7 @@ import {
   getSpot,
   loadKnowledgeBase,
   formatPlan,
+  formatPlanTable,
   formatWindow,
   formatTideDay,
   formatCompare,
@@ -73,9 +74,18 @@ async function cmdPlan(): Promise<void> {
   const to = arg(['--to']) ?? addDays(from, days - 1);
   const spotsArg = arg(['--spots']);
   const spots = spotsArg ? spotsArg.split(',').map((s) => s.trim()) : undefined;
+  const tableMode = has('--table');
+  const outFile = arg(['--output']);
   process.stderr.write(`Fetching forecast for East Bali ${from} → ${to}…\n`);
   const plan = await planSessions({ dateRange: { from, to }, spots });
-  process.stdout.write(formatPlan(plan) + '\n');
+  const output = tableMode ? formatPlanTable(plan) : formatPlan(plan);
+  if (outFile) {
+    const { writeFileSync } = await import('node:fs');
+    writeFileSync(outFile, output + '\n', 'utf8');
+    process.stderr.write(`Saved to ${outFile}\n`);
+  } else {
+    process.stdout.write(output + '\n');
+  }
 }
 
 async function cmdCheck(): Promise<void> {

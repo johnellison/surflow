@@ -141,8 +141,9 @@ async function scoreSpot(
     if (date < from || date > to) continue;
     const { sunriseH, sunsetH } = computeDaylight(rules.latitude, rules.longitude, date);
     const hr = localHour(h.time);
-    // Dawn patrol (~45min before sunrise) through sunset — no surfing in the dark.
-    if (hr < Math.floor(sunriseH - 0.75) || hr > Math.floor(sunsetH)) continue;
+    // No surfing before 06:00 — sunrise in East Bali Jun–Sep is ~06:05.
+    const minHour = Math.max(6, Math.floor(sunriseH));
+    if (hr < minHour || hr > Math.floor(sunsetH)) continue;
     out.push(scoreWindow(rules, h, surfer, weights));
   }
   return out;

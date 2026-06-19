@@ -11,7 +11,7 @@ export { scoreWindow } from './scoring/window';
 export { loadKnowledgeBase, getSpot, SPOT_SLUGS } from './knowledge/index';
 export { EAST_BALI_SWELL_POINT } from './knowledge/region';
 export { getForecast, type ForecastQuery } from './forecast/normalize';
-export { formatPlan, formatWindow, formatTideDay, formatCompare, formatVerify } from './format';
+export { formatPlan, formatPlanTable, formatWindow, formatTideDay, formatCompare, formatVerify } from './format';
 export { effectiveTideCeiling } from './tide-ceiling';
 export { waveCheckMinutes } from './wave-check';
 export { logSession, readSessions, type SessionLog, type ExitFeel } from './log';

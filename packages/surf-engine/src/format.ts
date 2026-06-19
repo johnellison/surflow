@@ -153,6 +153,87 @@ export function formatCompare(a: PlannedSpotDay, b: PlannedSpotDay, date: string
   return lines.join('\n');
 }
 
+const DIR_LABEL: Record<number, string> = {
+  0: 'N', 23: 'NNE', 45: 'NE', 68: 'ENE', 90: 'E', 113: 'ESE',
+  135: 'SE', 158: 'SSE', 180: 'S', 203: 'SSW', 225: 'SW', 248: 'WSW',
+  270: 'W', 293: 'WNW', 315: 'NW', 338: 'NNW',
+};
+function compassDir(deg: number): string {
+  const buckets = Object.keys(DIR_LABEL).map(Number);
+  const closest = buckets.reduce((a, b) => (Math.abs(b - (deg % 360)) < Math.abs(a - (deg % 360)) ? b : a));
+  return DIR_LABEL[closest] ?? `${deg}°`;
+}
+
+/** Full plan as a markdown table — one section per day, scannable in any MD viewer. */
+export function formatPlanTable(plan: SessionPlan): string {
+  const tideSrc = plan.byDay[0]?.ranked[0]?.best?.forecast.tideSource ?? 'open-meteo';
+  const tideNote = tideSrc === 'worldtides' ? 'WorldTides ±0.05m' : 'Open-Meteo ±0.25m ⚠';
+  const lines: string[] = [
+    `# 🏄 East Bali Surf Plan — ${plan.range.from} → ${plan.range.to}`,
+    ``,
+    `**Surfer:** ${plan.surfer.name ?? 'Yahya'} · ${plan.surfer.level} · ${plan.surfer.board.lengthCm}cm/${plan.surfer.board.volumeL}L ${plan.surfer.board.type}`,
+    `**Tide:** ${tideNote} · **Swell:** offshore reference — treat as upper bound`,
+    `**Tags:** ✓ models agree · ⚠ caution/diverge · ‼ check failed · ? >7d horizon · ⚑ wind seasonal default (ESE 15 kn Jun–Sep)`,
+  ];
+
+  if (plan.topPick) {
+    const tp = plan.topPick.window;
+    const f = tp.forecast;
+    const windStr = `${f.windKnots.toFixed(0)} kn ${compassDir(f.windDirDeg)}${f.windSource === 'seasonal-default' ? ' ⚑' : ''}`;
+    lines.push(``);
+    lines.push(`## ⭐ Top Pick — ${dayName(plan.topPick.date)} ${plan.topPick.date}`);
+    lines.push(`**${title(tp)}** · ${stars(tp.score)} · ${tp.score}/100 · ${hhmm(tp.time)}`);
+    lines.push(`Swell ${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s · Wind ${windStr} · Tide ${f.tideMeters.toFixed(2)}m ${f.tideState}`);
+  }
+
+  lines.push(``);
+  lines.push(`---`);
+
+  for (const day of plan.byDay) {
+    const tag = agreementTag(day.modelAgreement) || '';
+    lines.push(``);
+    lines.push(`## ${tag}${dayName(day.date)} ${day.date}`);
+
+    const surfable = day.ranked.filter((s) => s.best);
+    const unsafe = day.ranked.filter((s) => !s.best);
+
+    if (surfable.length === 0) {
+      lines.push(`_Nothing safe today._`);
+    } else {
+      lines.push(`| # | Spot | Score | Time | Swell | Wind | Tide | Condition |`);
+      lines.push(`|---|------|------:|------|-------|------|------|-----------|`);
+      surfable.slice(0, 5).forEach((spot, i) => {
+        const b = spot.best!;
+        const f = b.forecast;
+        const windStr = `${f.windKnots.toFixed(0)} kn ${compassDir(f.windDirDeg)}${f.windSource === 'seasonal-default' ? ' ⚑' : ''}`;
+        const tideStr = `${f.tideMeters.toFixed(2)}m ${f.tideState === 'rising' ? '↗' : f.tideState === 'falling' ? '↘' : '→'}`;
+        const swellStr = `${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s`;
+        const safeFlag = b.safety.safe ? '' : ' ⛔';
+        const warnFlag = b.safety.warnings.length ? ' ⚠️' : '';
+        const note = shortNote(b.summary);
+        lines.push(`| ${i + 1} | **${title(b)}**${safeFlag}${warnFlag} | ${stars(b.score)} ${b.score} | ${hhmm(b.time)} | ${swellStr} | ${windStr} | ${tideStr} | ${note} |`);
+      });
+    }
+
+    if (unsafe.length) {
+      lines.push(`**Out:** ${unsafe.map((s) => spotTitle(s)).join(', ')}`);
+    }
+  }
+
+  return lines.join('\n');
+}
+
+function shortNote(summary: string): string {
+  // "Only ding: X" is the key limitation — surface it directly.
+  const dingMatch = summary.match(/Only ding: (.+?)(?:\.|$)/);
+  if (dingMatch) return dingMatch[1].trim();
+  // Otherwise: first sentence before the Julien quote, truncated at a word boundary.
+  const beforeJulien = summary.split('Julien:')[0].trim().replace(/\.$/, '');
+  if (beforeJulien.length <= 65) return beforeJulien;
+  const cut = beforeJulien.slice(0, 62);
+  return cut.slice(0, cut.lastIndexOf(' ')) + '…';
+}
+
 /** Standalone cross-model verification table for `surf verify`. */
 export function formatVerify(agreementMap: Map<string, ModelAgreement>): string {
   const lines: string[] = ['# Cross-model agreement (Open-Meteo best_match vs ECMWF WAM025)'];
