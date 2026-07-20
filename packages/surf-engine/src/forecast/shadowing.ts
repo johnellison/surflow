@@ -22,15 +22,17 @@ const SHADOW_HALF_WIDTH_DEG = 20; // 190–230°
 
 /**
  * Height retention at dead center of the shadow (210°).
- * A 2.3m deep-water swell at 210° arrives as ~0.8m → retention ≈ 0.35.
+ * Calibrated from Jul 7–9 2026: Surfline 2.3m @ 16s from 215° → actual 1ft
+ * messy whitewater at all east-coast spots. 2.3m deep-water → ~0.3–0.5m
+ * effective → retention ≈ 0.20.
  */
-const SHADOW_MIN_HEIGHT_RETENTION = 0.35;
+const SHADOW_MIN_HEIGHT_RETENTION = 0.20;
 
 /**
  * Period retention at dead center. Refraction disperses energy and shortens
- * the effective period — a 16s swell wraps in at ~12s → retention ≈ 0.75.
+ * the effective period — a 16s swell wraps in at ~10s → retention ≈ 0.65.
  */
-const SHADOW_MIN_PERIOD_RETENTION = 0.75;
+const SHADOW_MIN_PERIOD_RETENTION = 0.65;
 
 export interface ShadowResult {
   /** 0 = no shadow, 1 = dead center of the shadow zone. */

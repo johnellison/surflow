@@ -36,23 +36,23 @@ describe('bukitShadow', () => {
     expect(bukitShadow(270)).toBeNull();
   });
 
-  it('at dead center (210°): height retains ~35%, period retains ~75%', () => {
+  it('at dead center (210°): height retains ~20%, period retains ~65%', () => {
     const s = bukitShadow(210)!;
     expect(s.severity).toBe(1);
-    expect(s.heightFactor).toBeCloseTo(0.35, 2);
-    expect(s.periodFactor).toBeCloseTo(0.75, 2);
+    expect(s.heightFactor).toBeCloseTo(0.20, 2);
+    expect(s.periodFactor).toBeCloseTo(0.65, 2);
   });
 
-  it('2.3m @ 210° → effective ~0.8m (65% discount)', () => {
+  it('2.3m @ 210° → effective ~0.46m (80% discount — calibrated from Jul 7-9 actuals)', () => {
     const s = bukitShadow(210)!;
     const effective = 2.3 * s.heightFactor;
-    expect(effective).toBeCloseTo(0.805, 1);
+    expect(effective).toBeCloseTo(0.46, 1);
   });
 
-  it('16s period @ 210° → effective ~12s', () => {
+  it('16s period @ 210° → effective ~10s', () => {
     const s = bukitShadow(210)!;
     const effective = 16 * s.periodFactor;
-    expect(effective).toBeCloseTo(12, 0);
+    expect(effective).toBeCloseTo(10.4, 0);
   });
 
   it('at shadow edge (190°): no shadow applied', () => {
@@ -62,8 +62,8 @@ describe('bukitShadow', () => {
   it('between center and edge (205°): moderate discount', () => {
     const s = bukitShadow(205)!;
     expect(s.severity).toBeCloseTo(0.75, 2);
-    // Height factor between 0.35 and 1.0
-    expect(s.heightFactor).toBeGreaterThan(0.35);
+    // Height factor between 0.20 and 1.0
+    expect(s.heightFactor).toBeGreaterThan(0.20);
     expect(s.heightFactor).toBeLessThan(1.0);
   });
 });
