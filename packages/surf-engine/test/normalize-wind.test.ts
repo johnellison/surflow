@@ -59,53 +59,45 @@ async function fetchHour(time: string, windKph: number, windDir = 270, windGustK
   return hours[0];
 }
 
-describe('Seasonal wind bias correction (Jun–Sep, <8 kn → seasonal-default)', () => {
+describe('Wind passthrough (raw model wind used directly, no seasonal override)', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('Jun: 3 km/h (~1.6 kn) → seasonal-default, windKnots=15, windDirDeg=112', async () => {
+  it('Jun: 3 km/h (~1.6 kn) → model, raw wind preserved (NOT overridden to 15)', async () => {
     const h = await fetchHour('2026-06-15T08:00', 3, 90);
-    expect(h.windSource).toBe('seasonal-default');
-    expect(h.windKnots).toBe(15);
-    expect(h.windDirDeg).toBe(112);
+    expect(h.windSource).toBe('model');
+    expect(h.windKnots).toBeCloseTo(3 * KMH_TO_KNOTS, 1);
+    expect(h.windDirDeg).toBe(90);
   });
 
-  it('Sep: 7 km/h (~3.8 kn, well under threshold) → seasonal-default', async () => {
+  it('Sep: 7 km/h (~3.8 kn) → model, raw wind preserved', async () => {
     const h = await fetchHour('2026-09-10T08:00', 7, 90);
-    expect(h.windSource).toBe('seasonal-default');
-    expect(h.windKnots).toBe(15);
+    expect(h.windSource).toBe('model');
+    expect(h.windKnots).toBeCloseTo(7 * KMH_TO_KNOTS, 1);
   });
 
-  it('Sep: 16 km/h (~8.6 kn, above threshold) → model (not corrected)', async () => {
-    // 16 km/h ≈ 8.64 kn — clearly above the 8 kn threshold
+  it('Sep: 16 km/h (~8.6 kn) → model', async () => {
     const h = await fetchHour('2026-09-10T08:00', 16, 90);
     expect(h.windSource).toBe('model');
     expect(h.windKnots).toBeGreaterThan(8);
   });
 
-  it('Oct (outside season): 3 km/h → model (no correction applied)', async () => {
+  it('Oct: 3 km/h → model, raw wind preserved', async () => {
     const h = await fetchHour('2026-10-05T08:00', 3, 270);
     expect(h.windSource).toBe('model');
     expect(h.windKnots).toBeCloseTo(3 * KMH_TO_KNOTS, 1);
   });
 
-  it('Jun: 20 km/h (~10.8 kn, above threshold) → model (no correction)', async () => {
+  it('Jun: 20 km/h (~10.8 kn) → model, direction preserved', async () => {
     const h = await fetchHour('2026-06-15T08:00', 20, 300);
     expect(h.windSource).toBe('model');
     expect(h.windKnots).toBeCloseTo(20 * KMH_TO_KNOTS, 1);
     expect(h.windDirDeg).toBe(300);
   });
 
-  it('seasonal-default: raw gust above 18 kn is preserved (not clamped down)', async () => {
-    // 60 km/h gust ≈ 32.4 kn — max(32.4, 18) should keep 32.4
-    const h = await fetchHour('2026-07-01T08:00', 3, 90, 60);
-    expect(h.windSource).toBe('seasonal-default');
-    expect(h.windGustKnots).toBeCloseTo(60 * KMH_TO_KNOTS, 1);
-  });
-
-  it('seasonal-default: raw gust below 18 kn is raised to 18', async () => {
-    // 5 km/h gust ≈ 2.7 kn — max(2.7, 18) = 18
+  it('gust is passed through unchanged (no floor applied)', async () => {
+    // 5 km/h gust ≈ 2.7 kn — previously floored to 18, now preserved
     const h = await fetchHour('2026-07-01T08:00', 3, 90, 5);
-    expect(h.windSource).toBe('seasonal-default');
-    expect(h.windGustKnots).toBe(18);
+    expect(h.windSource).toBe('model');
+    expect(h.windGustKnots).toBeCloseTo(5 * KMH_TO_KNOTS, 1);
   });
 });

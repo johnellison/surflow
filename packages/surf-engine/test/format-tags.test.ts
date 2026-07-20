@@ -126,20 +126,14 @@ describe('formatPlan — agreement tags in day headers', () => {
 // formatWindow — wind label
 // ---------------------------------------------------------------------------
 
-describe('formatWindow — wind: seasonal default label', () => {
-  it('shows [wind: seasonal default] when windSource is seasonal-default', () => {
-    const w = makeWindow({ forecast: makeForecast({ windSource: 'seasonal-default', windKnots: 15, windDirDeg: 112 }) });
-    const out = formatWindow(w);
-    expect(out).toContain('[wind: seasonal default]');
-  });
-
-  it('no label when windSource is model', () => {
+describe('formatWindow — wind label', () => {
+  it('no seasonal label when windSource is model', () => {
     const w = makeWindow({ forecast: makeForecast({ windSource: 'model' }) });
     const out = formatWindow(w);
     expect(out).not.toContain('[wind: seasonal default]');
   });
 
-  it('no label when windSource is undefined (existing sessions without field)', () => {
+  it('no seasonal label when windSource is undefined (existing sessions without field)', () => {
     const w = makeWindow({ forecast: makeForecast() }); // windSource absent
     const out = formatWindow(w);
     expect(out).not.toContain('[wind: seasonal default]');

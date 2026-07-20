@@ -17,8 +17,7 @@ function stars(score: number): string {
 /** One window as a compact line. */
 export function formatWindow(w: ScoredWindow): string {
   const f = w.forecast;
-  const windLabel = f.windSource === 'seasonal-default' ? ' [wind: seasonal default]' : '';
-  const cond = `${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s, wind ${f.windKnots.toFixed(0)}kn${windLabel}, tide ${f.tideMeters.toFixed(2)}m ${f.tideState}`;
+  const cond = `${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s, wind ${f.windKnots.toFixed(0)}kn, tide ${f.tideMeters.toFixed(2)}m ${f.tideState}`;
   const flag = w.safety.safe ? '' : ' ⛔';
   const check = `wave-check ~${waveCheckMinutes(f.swellHeightM)}min (be on the spot 20–30min early)`;
   return `${hhmm(w.time)}  ${stars(w.score)} ${String(w.score).padStart(3)}  ${cond}${flag}\n      ${w.summary}\n      ${check}`;
@@ -179,7 +178,7 @@ export function formatPlanTable(plan: SessionPlan): string {
   if (plan.topPick) {
     const tp = plan.topPick.window;
     const f = tp.forecast;
-    const windStr = `${f.windKnots.toFixed(0)} kn ${compassDir(f.windDirDeg)}${f.windSource === 'seasonal-default' ? ' ⚑' : ''}`;
+    const windStr = `${f.windKnots.toFixed(0)} kn ${compassDir(f.windDirDeg)}`;
     lines.push(``);
     lines.push(`## ⭐ Top Pick — ${dayName(plan.topPick.date)} ${plan.topPick.date}`);
     lines.push(`**${title(tp)}** · ${stars(tp.score)} · ${tp.score}/100 · ${hhmm(tp.time)}`);
@@ -205,7 +204,7 @@ export function formatPlanTable(plan: SessionPlan): string {
       surfable.slice(0, 5).forEach((spot, i) => {
         const b = spot.best!;
         const f = b.forecast;
-        const windStr = `${f.windKnots.toFixed(0)} kn ${compassDir(f.windDirDeg)}${f.windSource === 'seasonal-default' ? ' ⚑' : ''}`;
+        const windStr = `${f.windKnots.toFixed(0)} kn ${compassDir(f.windDirDeg)}`;
         const tideStr = `${f.tideMeters.toFixed(2)}m ${f.tideState === 'rising' ? '↗' : f.tideState === 'falling' ? '↘' : '→'}`;
         const swellStr = `${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s`;
         const safeFlag = b.safety.safe ? '' : ' ⛔';
