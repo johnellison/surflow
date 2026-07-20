@@ -17,7 +17,10 @@ function stars(score: number): string {
 /** One window as a compact line. */
 export function formatWindow(w: ScoredWindow): string {
   const f = w.forecast;
-  const cond = `${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s, wind ${f.windKnots.toFixed(0)}kn, tide ${f.tideMeters.toFixed(2)}m ${f.tideState}`;
+  const shadowTag = f.swellShadowed
+    ? ` [Bukit shadow: ${f.swellShadowed.originalHeightM.toFixed(1)}m→${f.swellHeightM.toFixed(1)}m]`
+    : '';
+  const cond = `${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s, wind ${f.windKnots.toFixed(0)}kn, tide ${f.tideMeters.toFixed(2)}m ${f.tideState}${shadowTag}`;
   const flag = w.safety.safe ? '' : ' ⛔';
   const check = `wave-check ~${waveCheckMinutes(f.swellHeightM)}min (be on the spot 20–30min early)`;
   return `${hhmm(w.time)}  ${stars(w.score)} ${String(w.score).padStart(3)}  ${cond}${flag}\n      ${w.summary}\n      ${check}`;
@@ -172,17 +175,18 @@ export function formatPlanTable(plan: SessionPlan): string {
     ``,
     `**Surfer:** ${plan.surfer.name ?? 'Yahya'} · ${plan.surfer.level} · ${plan.surfer.board.lengthCm}cm/${plan.surfer.board.volumeL}L ${plan.surfer.board.type}`,
     `**Tide:** ${tideNote} · **Swell:** offshore reference — treat as upper bound`,
-    `**Tags:** ✓ models agree · ⚠ caution/diverge · ‼ check failed · ? >7d horizon · ⚑ wind seasonal default (ESE 15 kn Jun–Sep)`,
+    `**Tags:** ✓ models agree · ⚠ caution/diverge · ‼ check failed · ? >7d horizon · ⬒ Bukit shadow`,
   ];
 
   if (plan.topPick) {
     const tp = plan.topPick.window;
     const f = tp.forecast;
     const windStr = `${f.windKnots.toFixed(0)} kn ${compassDir(f.windDirDeg)}`;
+    const shadowStr = f.swellShadowed ? ` ⬒ Bukit shadow (${f.swellShadowed.originalHeightM.toFixed(1)}m→${f.swellHeightM.toFixed(1)}m)` : '';
     lines.push(``);
     lines.push(`## ⭐ Top Pick — ${dayName(plan.topPick.date)} ${plan.topPick.date}`);
     lines.push(`**${title(tp)}** · ${stars(tp.score)} · ${tp.score}/100 · ${hhmm(tp.time)}`);
-    lines.push(`Swell ${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s · Wind ${windStr} · Tide ${f.tideMeters.toFixed(2)}m ${f.tideState}`);
+    lines.push(`Swell ${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s · Wind ${windStr} · Tide ${f.tideMeters.toFixed(2)}m ${f.tideState}${shadowStr}`);
   }
 
   lines.push(``);
@@ -206,7 +210,7 @@ export function formatPlanTable(plan: SessionPlan): string {
         const f = b.forecast;
         const windStr = `${f.windKnots.toFixed(0)} kn ${compassDir(f.windDirDeg)}`;
         const tideStr = `${f.tideMeters.toFixed(2)}m ${f.tideState === 'rising' ? '↗' : f.tideState === 'falling' ? '↘' : '→'}`;
-        const swellStr = `${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s`;
+        const swellStr = `${f.swellHeightM.toFixed(1)}m @ ${f.swellPeriodS.toFixed(0)}s${f.swellShadowed ? ' ⬒' : ''}`;
         const safeFlag = b.safety.safe ? '' : ' ⛔';
         const warnFlag = b.safety.warnings.length ? ' ⚠️' : '';
         const note = shortNote(b.summary);

@@ -2,6 +2,7 @@ import type { NormalizedForecastHour } from './types';
 import { fetchMarine } from './open-meteo-marine';
 import { fetchWeather } from './open-meteo-weather';
 import { buildTideSeries } from './tide';
+import { bukitShadow } from './shadowing';
 
 const KMH_TO_KNOTS = 1 / 1.852;
 
@@ -65,17 +66,40 @@ export async function getForecast(q: ForecastQuery): Promise<NormalizedForecastH
     const peak = si !== undefined ? sw.swell_wave_peak_period?.[si] : undefined;
     const period =
       num(peak) ?? (si !== undefined ? num(sw.swell_wave_period[si]) : null) ?? 0;
+    const swellHeightM = si !== undefined ? num(sw.swell_wave_height[si]) ?? 0 : 0;
+    const swellDirDeg = si !== undefined ? num(sw.swell_wave_direction[si]) ?? 0 : 0;
+
+    // Apply Bukit Peninsula shadowing for SSW swells (195–225°).
+    // The deep-water swell is physically blocked and must wrap around the
+    // Bukit — losing 50–70% of its height. We discount here (before scoring)
+    // so the size/period/safety gates all see realistic effective values.
+    const shadow = bukitShadow(swellDirDeg);
+    const effectiveHeightM = shadow ? round1(swellHeightM * shadow.heightFactor) : swellHeightM;
+    const effectivePeriodS = shadow ? round1(period * shadow.periodFactor) : period;
+
     return {
       time,
-      swellHeightM: si !== undefined ? num(sw.swell_wave_height[si]) ?? 0 : 0,
-      swellPeriodS: period,
-      swellDirDeg: si !== undefined ? num(sw.swell_wave_direction[si]) ?? 0 : 0,
+      swellHeightM: effectiveHeightM,
+      swellPeriodS: effectivePeriodS,
+      swellDirDeg,
       ...resolveWind(wi, w),
       tideMeters: tide.points[i]?.meters ?? 0,
       tideState: tide.points[i]?.state ?? 'rising',
       tideSource: tide.source,
       tideUncertaintyM: tide.uncertaintyM,
       waterTempC: num(loc.sea_surface_temperature[i]) ?? 0,
+      ...(shadow
+        ? {
+            swellShadowed: {
+              originalHeightM: swellHeightM,
+              originalPeriodS: period,
+              swellDirDeg,
+              severity: shadow.severity,
+              heightFactor: shadow.heightFactor,
+              periodFactor: shadow.periodFactor,
+            },
+          }
+        : {}),
     };
   });
 }

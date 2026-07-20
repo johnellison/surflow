@@ -1,4 +1,5 @@
 import type { TideState } from '@surflow/core';
+import type { SwellShadowed } from './shadowing';
 
 /** Which tide source produced a tide reading, and how much to trust it. */
 export type TideSourceName = 'worldtides' | 'open-meteo';
@@ -24,4 +25,10 @@ export interface NormalizedForecastHour {
   waterTempC: number;
   /** Origin of the wind reading — always 'model' (raw Open-Meteo). */
   windSource?: 'model';
+  /**
+   * Set when the Bukit Peninsula shadowing correction was applied — the
+   * swellHeightM/swellPeriodS fields already reflect the discounted values;
+   * this preserves the original deep-water readings for display.
+   */
+  swellShadowed?: SwellShadowed;
 }
